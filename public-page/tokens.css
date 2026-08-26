@@ -1,0 +1,55 @@
+/* Public page tokens — source: docs/SPEC-public-page.md (Figma Make 2026-08-26) */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --wp-color-brand: #1b42f5;
+  --wp-color-brand-hover: #1737d4;
+  --wp-color-brand-deep: #142fe1;
+  --wp-color-passport: #19278f;
+  --wp-color-ink: #09090b;
+  --wp-color-text: #101828;
+  --wp-color-text-secondary: #1e2939;
+  --wp-color-text-muted: #6a7282;
+  --wp-color-text-subtle: #99a1af;
+  --wp-color-text-label: #4a5565;
+  --wp-color-text-zinc: #71717a;
+  --wp-color-surface: #ffffff;
+  --wp-color-page: #f9fafb;
+  --wp-color-track: #f3f4f6;
+  --wp-color-border: #e5e7eb;
+  --wp-color-divider: #f3f4f6;
+  --wp-color-banner-border: #e4e4e7;
+  --wp-color-photo-fallback: #e8b762;
+  --wp-color-visa-from: #dbeafe;
+  --wp-color-visa-to: #fef3c7;
+  --wp-color-doc-purple: #f1ecfe;
+  --wp-color-doc-blue: #e8f0ff;
+  --wp-color-on-brand: #ffffff;
+  --wp-color-on-brand-muted: rgba(255, 255, 255, 0.7);
+  --wp-shadow-card: 0 1px 2px 0 rgba(0, 15, 55, 0.06);
+  --wp-shadow-chip: 0 1px 2px rgba(0, 15, 55, 0.12);
+  --wp-shadow-tab: 0 1px 1.5px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.1);
+  --wp-shadow-hero: 0 10px 15px rgba(0, 15, 55, 0.08);
+  --wp-radius-hero: 24px;
+  --wp-radius-card: 16px;
+  --wp-radius-chip: 12px;
+  --wp-radius-pill: 999px;
+  --wp-space-page: 24px;
+  --wp-space-block: 20px;
+  --wp-space-hero: 16px;
+  --wp-page-max: 390px;
+  --wp-photo: 72px;
+  --wp-font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --wp-font-text: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --wp-ease-flip: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root {
+  --wp-flip-ms: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --wp-flip-ms: 0ms;
+  }
+}

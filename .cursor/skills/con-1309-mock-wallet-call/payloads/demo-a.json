@@ -1,0 +1,19 @@
+{
+  "template": "GENERIC",
+  "templateVersion": 1,
+  "provider": "APPLE",
+  "source": "con-1309-skill",
+  "sourceReference": "demo-a",
+  "data": {
+    "title": "Stay with Pico",
+    "subtitle": "Demo reservation card",
+    "imageUrl": "https://placehold.co/400x400/png",
+    "fields": {
+      "guest": "Alex Rivera",
+      "dates": "12–15 Sep",
+      "unit": "Cabin 4"
+    },
+    "links": [{ "label": "Details", "url": "https://example.com/stay/demo-a" }],
+    "ownerEmail": "not-public@example.com"
+  }
+}

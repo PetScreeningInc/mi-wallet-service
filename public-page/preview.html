@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Public page preview — Pet ID theme</title>
+    <link rel="stylesheet" href="./components.css" />
+  </head>
+  <body>
+    <main class="wp-page" data-preview="pet-id-slots">
+      <header class="wp-brand" aria-label="betterpet Passport">
+        <span class="wp-brand__mark" aria-hidden="true">b</span>
+        <div>
+          <p class="wp-brand__wordmark">betterpet</p>
+          <p class="wp-brand__product">Passport</p>
+        </div>
+      </header>
+
+      <section class="wp-hero" id="hero">
+        <div class="wp-hero__scene">
+          <article class="wp-hero__face wp-hero__face--front">
+            <button type="button" class="wp-hero__flip" data-flip>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2.76 8.5a4.5 4.5 0 0 0 7.94 1.3M13.24 7.5a4.5 4.5 0 0 0-7.94-1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              Tap to flip
+            </button>
+            <div class="wp-identity">
+              <div class="wp-photo">
+                <img
+                  alt="Cooper, an Australian Shepherd"
+                  src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=288&h=288&fit=crop"
+                />
+              </div>
+              <div>
+                <h1 class="wp-identity__title">Cooper</h1>
+                <p class="wp-identity__subtitle">Australian Shepherd</p>
+              </div>
+            </div>
+            <div class="wp-highlights">
+              <div class="wp-highlight">
+                <p class="wp-highlight__value">4 yo</p>
+                <p class="wp-highlight__label">Age</p>
+              </div>
+              <div class="wp-highlight">
+                <p class="wp-highlight__value">60 lbs</p>
+                <p class="wp-highlight__label">Weight</p>
+              </div>
+            </div>
+            <div>
+              <p class="wp-section-label">Achievement</p>
+              <div class="wp-badges" role="list">
+                <div class="wp-badge" role="listitem">
+                  <span class="wp-badge__emoji" aria-hidden="true">🎖️</span>
+                  <div>
+                    <p class="wp-badge__title">First Adventure</p>
+                    <p class="wp-badge__meta">1 trip approved</p>
+                  </div>
+                </div>
+                <div class="wp-badge" role="listitem">
+                  <span class="wp-badge__emoji" aria-hidden="true">💙</span>
+                  <div>
+                    <p class="wp-badge__title">Support Companion</p>
+                    <p class="wp-badge__meta">ESA on file</p>
+                  </div>
+                </div>
+                <div class="wp-badge" role="listitem">
+                  <span class="wp-badge__emoji" aria-hidden="true">💉</span>
+                  <div>
+                    <p class="wp-badge__title">Vaccines</p>
+                    <p class="wp-badge__meta">Up to date</p>
+                  </div>
+                </div>
+                <div class="wp-badge" role="listitem">
+                  <span class="wp-badge__emoji" aria-hidden="true">✈️</span>
+                  <div>
+                    <p class="wp-badge__title">Traveler</p>
+                    <p class="wp-badge__meta">3 countries</p>
+                  </div>
+                </div>
+                <div class="wp-badge" role="listitem">
+                  <span class="wp-badge__emoji" aria-hidden="true">🐾</span>
+                  <div>
+                    <p class="wp-badge__title">Good boy</p>
+                    <p class="wp-badge__meta">Certified</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <p class="wp-section-label">Behavior</p>
+              <div class="wp-tags">
+                <span class="wp-tag"><span aria-hidden="true">🤝</span> Friendly with strangers</span>
+                <span class="wp-tag"><span aria-hidden="true">🫶</span> Likes being touched</span>
+              </div>
+            </div>
+          </article>
+          <article class="wp-hero__face wp-hero__face--back" aria-hidden="true">
+            <div class="wp-notice">
+              <div class="wp-notice__icon" aria-hidden="true">✓</div>
+              <div>
+                <p class="wp-notice__title">Information you can trust</p>
+                <p class="wp-notice__body">Pet information is self-reported by the pet parent.</p>
+              </div>
+            </div>
+            <div class="wp-notice">
+              <div class="wp-notice__icon" aria-hidden="true">🔒</div>
+              <div>
+                <p class="wp-notice__title">Your privacy matters</p>
+                <p class="wp-notice__body">Share only what you choose. You’re in control.</p>
+              </div>
+            </div>
+            <div class="wp-notice">
+              <div class="wp-notice__icon" aria-hidden="true">▦</div>
+              <div>
+                <p class="wp-notice__title">Verify this Pet ID</p>
+                <p class="wp-notice__body">Scan the QR code or visit <strong>betterpet.com/verify</strong></p>
+              </div>
+            </div>
+            <button type="button" class="wp-hero__flip" data-flip>Tap to flip back</button>
+          </article>
+        </div>
+      </section>
+
+      <div class="wp-tabs" role="tablist" aria-label="Public details">
+        <button type="button" class="wp-tabs__tab is-active" role="tab" aria-selected="true" aria-controls="panel-profile" id="tab-profile" data-tab="profile">Profile</button>
+        <button type="button" class="wp-tabs__tab" role="tab" aria-selected="false" aria-controls="panel-documents" id="tab-documents" data-tab="documents">Documents</button>
+        <button type="button" class="wp-tabs__tab" role="tab" aria-selected="false" aria-controls="panel-visas" id="tab-visas" data-tab="visas">Visas</button>
+      </div>
+
+      <section class="wp-panel" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile">
+        <dl class="wp-card">
+          <div class="wp-fact"><dt class="wp-fact__term">Breed</dt><dd class="wp-fact__value">Australian Shepherd</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Coat colors</dt><dd class="wp-fact__value">Liver, copper, white</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Coat pattern</dt><dd class="wp-fact__value">Merle</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Gender</dt><dd class="wp-fact__value">Male</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Birthday</dt><dd class="wp-fact__value">Nov 29, 2020</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Weight</dt><dd class="wp-fact__value">60 lbs</dd></div>
+          <div class="wp-fact"><dt class="wp-fact__term">Neutered</dt><dd class="wp-fact__value">Yes</dd></div>
+        </dl>
+      </section>
+
+      <section class="wp-panel" id="panel-documents" role="tabpanel" aria-labelledby="tab-documents" hidden>
+        <div class="wp-group">
+          <p class="wp-section-label">Vaccination records</p>
+          <div class="wp-card">
+            <a class="wp-row" href="#demo-rabies">
+              <span class="wp-file wp-file--purple" aria-hidden="true">💉</span>
+              <span class="wp-row__body">
+                <p class="wp-row__title">Rabies</p>
+                <p class="wp-row__meta">Valid until Sep 10, 2026</p>
+              </span>
+              <span class="wp-chevron" aria-hidden="true">›</span>
+            </a>
+          </div>
+        </div>
+        <div class="wp-group" style="margin-top: 20px">
+          <p class="wp-section-label">Medical documentation</p>
+          <div class="wp-card">
+            <a class="wp-row" href="#demo-sterilization">
+              <span class="wp-file wp-file--blue" aria-hidden="true">📄</span>
+              <span class="wp-row__body">
+                <p class="wp-row__title">Certificate of Sterilization</p>
+                <p class="wp-row__meta">Issued on Sep 10, 2025</p>
+              </span>
+              <span class="wp-chevron" aria-hidden="true">›</span>
+            </a>
+            <a class="wp-row" href="#demo-cvi">
+              <span class="wp-file wp-file--blue" aria-hidden="true">📄</span>
+              <span class="wp-row__body">
+                <p class="wp-row__title">Certificate of Veterinary Inspection</p>
+                <p class="wp-row__meta">Issued on May 22, 2025</p>
+              </span>
+              <span class="wp-chevron" aria-hidden="true">›</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="wp-panel" id="panel-visas" role="tabpanel" aria-labelledby="tab-visas" hidden>
+        <div class="wp-group">
+          <p class="wp-section-label">Visas</p>
+          <div class="wp-card">
+            <a class="wp-row" href="#demo-visa">
+              <span class="wp-thumb" aria-hidden="true">🏝️</span>
+              <span class="wp-row__body">
+                <p class="wp-row__title">Bass Harbor Seaside Bungalow</p>
+                <p class="wp-row__meta">Bass Harbor, ME</p>
+                <p class="wp-row__meta">4/7/2025 – 4/14/2025</p>
+              </span>
+              <span class="wp-chevron" aria-hidden="true">›</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const hero = document.getElementById("hero");
+      document.querySelectorAll("[data-flip]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const flipped = hero.classList.toggle("is-flipped");
+          hero.querySelector(".wp-hero__face--back").setAttribute("aria-hidden", String(!flipped));
+        });
+      });
+
+      const tabs = document.querySelectorAll("[data-tab]");
+      const panels = {
+        profile: document.getElementById("panel-profile"),
+        documents: document.getElementById("panel-documents"),
+        visas: document.getElementById("panel-visas"),
+      };
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const key = tab.getAttribute("data-tab");
+          tabs.forEach((t) => {
+            const on = t === tab;
+            t.classList.toggle("is-active", on);
+            t.setAttribute("aria-selected", String(on));
+          });
+          Object.entries(panels).forEach(([id, el]) => {
+            el.hidden = id !== key;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

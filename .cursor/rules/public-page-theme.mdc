@@ -1,0 +1,17 @@
+---
+description: Visual contract for GET /p/{publicId} HTML. Use when adding or changing the public page.
+globs: public-page/**/*.{css,html},**/public-page/**
+alwaysApply: false
+---
+
+# Public page theme
+
+Read [docs/SPEC-public-page.md](docs/SPEC-public-page.md) before changing markup.
+
+1. Reuse `public-page/tokens.css` and `public-page/components.css`. Do not invent a second palette.
+2. Scanner page only: no edit, share, field-picker drawer, or Apple/Google save (private ingress).
+3. Bind **slots** (`photo`, `title`, `subtitle`, `highlights`, `badges`, `tags`, `facts`, `documents`, `links`). Never `Animal`, `tagNumber`, or `ownerEmail`.
+4. `GENERIC` v1: hero + facts + links. Do not fake Documents/Visas tabs or Cooper copy.
+5. Flip + tabs need keyboard, `prefers-reduced-motion`, and public-flagged fields only.
+6. Treat Figma Make as the visual source. FigJam is exploratory context only; do not implement its owner or Wallet ID flows.
+7. Document/visa URLs are caller-supplied public HTTPS links hosted by external services. Never proxy them or append tokens; use `noopener noreferrer` and suppress unsafe schemes.

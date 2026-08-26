@@ -1,0 +1,19 @@
+{
+  "template": "GENERIC",
+  "templateVersion": 1,
+  "provider": "APPLE",
+  "source": "con-1309-skill",
+  "sourceReference": "demo-b",
+  "data": {
+    "title": "Maple",
+    "subtitle": "Demo pet card",
+    "imageUrl": "https://placehold.co/400x400/png",
+    "fields": {
+      "type": "Household pet",
+      "breed": "Beagle",
+      "status": "Active"
+    },
+    "links": [{ "label": "Profile", "url": "https://example.com/pet/demo-b" }],
+    "ownerEmail": "also-not-public@example.com"
+  }
+}
