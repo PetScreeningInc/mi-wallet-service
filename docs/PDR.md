@@ -105,5 +105,5 @@ From CON-1309 unless noted:
 ## Deliverables (CON-1309)
 
 - Runnable POC (local or ephemeral) + sample payloads
-- Contract sketch (this PDR + [SPEC-wallet-api](SPEC-wallet-api.md) + [SDD](SDD.md) + [ROADMAP](ROADMAP.md) + [USE-CASE-MAP](USE-CASE-MAP.md))
+- Contract sketch (this PDR + [wallet-api](specs/wallet-api.md) + [SDD](SDD.md) + [ROADMAP](ROADMAP.md) + [USE-CASE-MAP](USE-CASE-MAP.md))
 - Written go / no-go

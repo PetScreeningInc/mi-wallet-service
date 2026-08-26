@@ -2,7 +2,7 @@
 
 **Status:** accepted  
 **Date:** 2026-08-25  
-**Relates-to:** [PDR](PDR.md), [ADR-001](ADR-001-wallet-generation-service-architecture.md), [SPEC-wallet-api](SPEC-wallet-api.md), [DIAGRAMS](DIAGRAMS.md), [USE-CASE-MAP](USE-CASE-MAP.md), [CON-1309](https://petscreening.atlassian.net/browse/CON-1309), [CON-1297](https://petscreening.atlassian.net/browse/CON-1297)
+**Relates-to:** [PDR](PDR.md), [ADR-001](ADR-001-wallet-generation-service-architecture.md), [wallet-api](specs/wallet-api.md), [DIAGRAMS](DIAGRAMS.md), [USE-CASE-MAP](USE-CASE-MAP.md), [CON-1309](https://petscreening.atlassian.net/browse/CON-1309), [CON-1297](https://petscreening.atlassian.net/browse/CON-1297)
 
 This is the canonical software design for **this** service. As-built Platform behavior lives under [as-built/](as-built/) and is not the target API.
 
@@ -109,7 +109,7 @@ A template defines:
 - Google mapping
 - Required vs optional fields
 
-**First slice (CON-1309):** a generic schema (title, subtitle, image URL, 3–5 display fields, optional links). Not Animal types. A `PET_CARD` template can be added when Platform maps CON-1297 data; that mapping stays in Platform.
+**First slice (CON-1309):** a generic schema (title, subtitle, image URL, 3–5 display fields, optional links). Not Animal types. Files: `src/templates/generic/v1/`. A `PET_CARD` template can be added when Platform maps CON-1297 data; that mapping stays in Platform.
 
 ```mermaid
 flowchart LR
@@ -147,7 +147,7 @@ QR/barcode message = this service’s public URL, not Passport `pet-card/{tagNum
 
 `GET /p/{publicId}` loads the document, applies the stored template version, renders HTML from **public** fields only. **Always public** — no login now or later. This is the only route published on the public ingress.
 
-Visual contract (slots, chrome, what is *not* on this URL): [SPEC-public-page](SPEC-public-page.md). Tokens and `wp-*` components: [`public-page/`](../public-page/). The renderer binds slots (`photo`, `title`, `facts`, …), never `Animal` or `tagNumber`. CON-1309 `GENERIC` is hero + facts + links; Pet ID tabs/badges wait for a `PET_CARD` template (P12) and caller mapping.
+Visual contract (slots, chrome, what is *not* on this URL): [public-page spec](specs/public-page.md). Tokens and `wp-*` components: [`public-page/`](../public-page/). The renderer binds slots (`photo`, `title`, `facts`, …), never `Animal` or `tagNumber`. CON-1309 `GENERIC` is hero + facts + links; Pet ID tabs/badges wait for a `PET_CARD` template (P12) and caller mapping.
 
 First slices read DynamoDB by `publicId`. A Redis cache for that lookup is **decided** and will be added in a later slice (see [DIAGRAMS](DIAGRAMS.md#2-containers-and-persistence)).
 

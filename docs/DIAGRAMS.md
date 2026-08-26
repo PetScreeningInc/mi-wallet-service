@@ -2,9 +2,9 @@
 
 **Status:** accepted  
 **Date:** 2026-08-25  
-**Relates-to:** [PDR](PDR.md), [SDD](SDD.md), [ADR-001](ADR-001-wallet-generation-service-architecture.md), [SPEC-wallet-api](SPEC-wallet-api.md)
+**Relates-to:** [PDR](PDR.md), [SDD](SDD.md), [ADR-001](ADR-001-wallet-generation-service-architecture.md), [wallet-api](specs/wallet-api.md)
 
-Single source for figures. All diagrams are Mermaid (text, diffable) so they stay alive with the code and can be reviewed in a PR. Names must match [SPEC-wallet-api](SPEC-wallet-api.md): `POST /v1/wallets`, `GET /p/{publicId}`.
+Single source for figures. All diagrams are Mermaid (text, diffable) so they stay alive with the code and can be reviewed in a PR. Names must match [wallet-api](specs/wallet-api.md): `POST /v1/wallets`, `GET /p/{publicId}`.
 
 Keep-alive rule: if a route, port, adapter, or datastore changes, update the affected figure **in the same PR** as the SPEC or SDD change. Do not add a figure that shows an undecided component as if it were decided — list it in [Open decisions](#open-decisions) instead.
 
@@ -92,7 +92,7 @@ flowchart LR
   Admin -.-> createTemplate
 ```
 
-In CON-1309 templates are **files in this repo**, loaded by the template registry at boot. `createTemplate` as an API is future work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
+In CON-1309 templates are **files in this repo** (`src/templates/{key}/v{n}/`), loaded by the template registry at boot. `createTemplate` as an API is future work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
 
 ## 4. Sequence: generateWallet
 
@@ -150,7 +150,7 @@ sequenceDiagram
     App->>Cache: set
   end
   App->>Render: "document plus stored template version"
-  Render-->>App: "HTML from public-flagged fields only, SPEC-public-page slots"
+  Render-->>App: "HTML from public-flagged fields only, public-page spec slots"
   App-->>API: HTML
   API-->>Scanner: 200 OK
 ```

@@ -1,6 +1,6 @@
 # Generic template (CON-1309)
 
-File-based only. Key `GENERIC`, version `1`. Copy into the service template registry when P1 exists (path TBD by P1; typical: `src/templates/generic/v1/`).
+File-based only. Key `GENERIC`, version `1`. Catalog: `src/templates/generic/v1/` (`template.json` + `schema.json`).
 
 POC payloads are **not** STR/LTR products. `demo-a` is stay-shaped and `demo-b` is pet-id-shaped so two callers look different; production templates (`STR_STAY`, lost-pet page, …) come from [USE-CASE-MAP](../../../docs/USE-CASE-MAP.md) after Wave A.
 

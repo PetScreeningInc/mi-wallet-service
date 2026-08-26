@@ -4,7 +4,7 @@
 **API:** GraphQL mutation `createAnimalWalletCard`  
 **Schema:** `mi-api/src/main/resources/graphql/wallet.graphqls`
 
-Do **not** copy this contract into the new service. Target API: [SPEC-wallet-api](../SPEC-wallet-api.md).
+Do **not** copy this contract into the new service. Target API: [wallet-api](../specs/wallet-api.md).
 
 ## Input
 

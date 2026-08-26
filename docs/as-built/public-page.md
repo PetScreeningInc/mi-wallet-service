@@ -4,7 +4,7 @@
 
 Platform does **not** manage public pages. This spec is the **backend contract** Passport uses to render `pet-card/{tagNumber}`.
 
-Target for this service: persist the snapshot and host HTML — [SPEC-wallet-api](../SPEC-wallet-api.md) `GET /p/{publicId}`.
+Target for this service: persist the snapshot and host HTML — [wallet-api](../specs/wallet-api.md) `GET /p/{publicId}`.
 
 ## URL (not implemented in Platform)
 

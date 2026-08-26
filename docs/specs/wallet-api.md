@@ -2,9 +2,9 @@
 
 **Status:** accepted  
 **Date:** 2026-08-25  
-**Relates-to:** [SDD](SDD.md), [ADR-001](ADR-001-wallet-generation-service-architecture.md)
+**Relates-to:** [SDD](../SDD.md), [ADR-001](../ADR-001-wallet-generation-service-architecture.md)
 
-Target contract for **this** service. Platform GraphQL is [as-built](as-built/wallet-generation.md).
+Target contract for **this** service. Platform GraphQL is [as-built](../as-built/wallet-generation.md).
 
 ## `POST /v1/wallets`
 
@@ -76,7 +76,7 @@ If generation fails after persist:
 
 Need Apple **and** Google? Platform (or the caller) issues **two** POSTs. Each request creates its own document unless a later attach-provider API exists.
 
-CON-1309: the [mock skill](../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Product backends are out of scope until Wave C.
+CON-1309: the [mock skill](../../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Product backends are out of scope until Wave C.
 
 ## `GET /v1/wallets/{id}/apple`
 
@@ -88,7 +88,7 @@ Public HTML. **Always** no login — not in the first slice and not later. Looku
 
 `publicId` must not be the document `id`, a Platform animal UUID, or a tag number.
 
-HTML look and slots: [SPEC-public-page](SPEC-public-page.md). Scanner chrome only (no owner edit/save drawer). P4 uses the same theme for `GENERIC` v1 without Pet ID tabs.
+HTML look and slots: [public-page](public-page.md). Scanner chrome only (no owner edit/save drawer). P4 uses the same theme for `GENERIC` v1 without Pet ID tabs.
 
 ## Template contract
 
@@ -113,6 +113,21 @@ A version includes:
 5. Assets (icons, logo, default image) referenced from S3 or HTTPS URLs.
 
 Unknown keys in `data` that the schema rejects are 400. Keys allowed by the schema but not `public: true` never appear on `/p/{publicId}`.
+
+### CON-1309 `GENERIC` v1
+
+File catalog: `src/templates/{key}/v{n}/` (`template.json` + JSON Schema). No template admin API.
+
+| Field | Required | wallet | public |
+| --- | --- | --- | --- |
+| `title` | yes | true | true |
+| `subtitle` | no | true | true |
+| `imageUrl` | no (URI if present) | true | true |
+| `fields` | yes (object, 3–5 string values) | true | true |
+| `links` | no (`{ label, url }[]`) | true | true |
+| `ownerEmail` | no | false | false |
+
+Additional properties are rejected. Apple/Google mapping files are not part of this version; they land with the first adapter (P5).
 
 ### Platform / CON-1297 (caller mapping, not API types)
 

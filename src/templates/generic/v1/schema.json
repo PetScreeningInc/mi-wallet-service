@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://wallet.petscreening.local/templates/GENERIC/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "fields"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "fields": {
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 5,
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "url"],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "ownerEmail": {
+      "type": "string",
+      "format": "email"
+    }
+  }
+}

@@ -16,7 +16,7 @@ This file is **product intent**. Callers (Platform, later LTR/FTA, later partner
 | Pet ID vs Visa/Pass | Pet ID is share-anytime; a visa is a business relationship. Both can be `data` on different templates. This repo has no visa tables. |
 | Privacy: stay pass ≠ lost-pet scan | Template `wallet` / `public` flags. Same `publicId` entropy; different field sets. |
 | Validity windows (stay dates, lease term, sitting window) | `expiresAt` on `WalletDocument` is reserved; not required for [CON-1309](https://petscreening.atlassian.net/browse/CON-1309). |
-| Scan-time trust (screenshot is not proof) | `GET /p/{publicId}` is the scan surface. First-class HTML ([SPEC-public-page](SPEC-public-page.md)). Live re-fetch from Platform is later. |
+| Scan-time trust (screenshot is not proof) | `GET /p/{publicId}` is the scan surface. First-class HTML ([public-page spec](specs/public-page.md)). Live re-fetch from Platform is later. |
 | Lost pet QR | Often **page only**, not a wallet pass. Same public ingress. |
 | Partner-issued passes (#25) | Same `POST /v1/wallets`; partner-defined schema in a template. |
 | PM wedge: STR stay + lost pet QR | After the POC: first production templates / caller mapping in Platform. Not CON-1309 scope. |

@@ -11,7 +11,7 @@ description: >-
 
 This is the **only** CON-1309 POC caller. It is not Platform, LTR, or FTA. Do not call those APIs or invent Animal/tagNumber payloads.
 
-Contract: [docs/SPEC-wallet-api.md](../../../docs/SPEC-wallet-api.md). One `provider` per POST (`APPLE` or `GOOGLE`).
+Contract: [docs/specs/wallet-api.md](../../../docs/specs/wallet-api.md). One `provider` per POST (`APPLE` or `GOOGLE`).
 
 Default base URL: `http://localhost:3000` unless the user says otherwise.
 
@@ -22,7 +22,7 @@ Say so. Do not fake a 201. Point at [docs/ROADMAP.md](../../../docs/ROADMAP.md) 
 ## Workflow
 
 1. Confirm the app is reachable: `GET {base}/health` (P0+).
-2. Ensure a **file template** exists (CON-1309 has no `createTemplate` API). If the registry is empty, add a generic template from [templates.md](templates.md) under the service templates directory (do not invent Animal types).
+2. Ensure a **file template** exists (CON-1309 has no `createTemplate` API). `GENERIC` v1 lives at `src/templates/generic/v1/`. If the registry is empty, add a generic template from [templates.md](templates.md) (do not invent Animal types).
 3. Run **two** POSTs with the two payloads in `payloads/` (distinct `data`, same contract). That is the CON-1309 numeric gate.
 4. Print `id`, `publicUrl`, and `provider`. Open or curl `GET {publicUrl}` and check public fields only.
 5. If `provider.status` is `FAILED` and P5 is not done, that is expected for a stub adapter.

@@ -1,7 +1,7 @@
 # Agentic workflow
 
 **Status:** accepted  
-**Relates-to:** [ROADMAP](ROADMAP.md), [SDD](SDD.md), [SPEC-wallet-api](SPEC-wallet-api.md)
+**Relates-to:** [ROADMAP](ROADMAP.md), [SDD](SDD.md), [wallet-api](specs/wallet-api.md)
 
 Small loop so humans and agents stay consistent. Not a multi-agent org. One slice at a time.
 

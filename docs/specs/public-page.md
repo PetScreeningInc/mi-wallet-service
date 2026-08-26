@@ -2,13 +2,13 @@
 
 **Status:** accepted  
 **Date:** 2026-08-26  
-**Relates-to:** [SPEC-wallet-api](SPEC-wallet-api.md), [SDD](SDD.md), [ROADMAP](ROADMAP.md) P4  
+**Relates-to:** [wallet-api](wallet-api.md), [SDD](../SDD.md), [ROADMAP](../ROADMAP.md) P4  
 **Visual source:** [Figma Make Pet ID](https://click-love-58328216.figma.site/) (captured 2026-08-26)  
 **Exploration only:** [STR User Flow FigJam](https://www.figma.com/board/zMO0UdV9yB7OnJ35KbEiLP/STR-User-Flow---AA?node-id=536-13993)
 
-Visual and information-architecture contract for `GET /p/{publicId}`. HTTP rules stay in [SPEC-wallet-api](SPEC-wallet-api.md): always unauthenticated; **public**-flagged fields only; 404 if unknown.
+Visual and information-architecture contract for `GET /p/{publicId}`. HTTP rules stay in [wallet-api](wallet-api.md): always unauthenticated; **public**-flagged fields only; 404 if unknown.
 
-Tokens and markup live in [`public-page/`](../public-page/). Agents must follow [`.cursor/rules/public-page-theme.mdc`](../.cursor/rules/public-page-theme.mdc) when rendering HTML.
+Tokens and markup live in [`public-page/`](../../public-page/). Agents must follow [`.cursor/rules/public-page-theme.mdc`](../../.cursor/rules/public-page-theme.mdc) when rendering HTML.
 
 ## Source precedence
 
@@ -118,7 +118,7 @@ Same page chrome (brand + centered card). Title â€œThis Pet ID is unavailable.â€
 
 ## Theme tokens
 
-Canonical CSS: [`public-page/tokens.css`](../public-page/tokens.css). Do not introduce a second blue or a purple BetterPet accent on this surface (Passport-blue `#1B42F5` is the product direction). The matching scale is already defined by `pet-screening-fe/libs/hachiko/src/theme.css`.
+Canonical CSS: [`public-page/tokens.css`](../../public-page/tokens.css). Do not introduce a second blue or a purple BetterPet accent on this surface (Passport-blue `#1B42F5` is the product direction). The matching scale is already defined by `pet-screening-fe/libs/hachiko/src/theme.css`.
 
 **Type:** Archivo (wordmark, titles, fact values) + Inter as the open substitute for **TT Hoves** (labels, meta, tabs). TT Hoves is what the prototype loads; do not vendor those files unless legal clears a license. If TT Hoves is added later, point `--font-text` at it without changing sizes.
 

@@ -8,8 +8,8 @@ Design pack for a **decoupled** wallet service that can later **replace** in-pro
 2. [USE-CASE-MAP.md](USE-CASE-MAP.md) — PM credential landscape (STR stay, lost pet, partners); not the HTTP contract  
 3. [SDD.md](SDD.md) — canonical software design (**always required**)  
 4. [ADR-001-wallet-generation-service-architecture.md](ADR-001-wallet-generation-service-architecture.md) — stack and hexagonal decision  
-5. [SPEC-wallet-api.md](SPEC-wallet-api.md) — HTTP + template contract  
-6. [SPEC-public-page.md](SPEC-public-page.md) — scanner HTML layout, slots, theme (P4)  
+5. [specs/wallet-api.md](specs/wallet-api.md) — HTTP + template contract  
+6. [specs/public-page.md](specs/public-page.md) — scanner HTML layout, slots, theme (P4)  
 7. [DIAGRAMS.md](DIAGRAMS.md) — context, containers, use cases, sequences, open decisions  
 8. [ROADMAP.md](ROADMAP.md) — feature phases (CON-1309 gate, then complete service, then callers)  
 9. [WORKFLOW.md](WORKFLOW.md) — agentic loop (one phase, docs if contract moves, mock skill)  
@@ -25,7 +25,7 @@ This folder must keep **PDR** and **SDD**. Do not add ADRs that are only Platfor
 | SDD | `SDD.md` | Canonical software design for *this* service. |
 | PDR | `PDR.md` | Problem, actors, success from Jira. |
 | ADR | `ADR-NNN-kebab-title.md` | Real decisions for **this** service only. Today: ADR-001. |
-| Spec | `SPEC-kebab-title.md` | Target HTTP/template (and public-page visual) contract. |
+| Spec | `specs/kebab-title.md` | Target HTTP/template (and public-page visual) contract. Index: [specs/](specs/). |
 | Diagrams | `DIAGRAMS.md` | All figures, in Mermaid. Update in the same PR as the change they describe. |
 | Roadmap | `ROADMAP.md` | Feature phases. Update when a slice lands. |
 | Workflow | `WORKFLOW.md` | Agentic loop. Agents follow this plus `.cursor/rules/sdd-workflow.mdc`. |
@@ -41,8 +41,8 @@ Statuses: `proposed` | `accepted` | `superseded` | `as-built` | `historical`.
 | [USE-CASE-MAP.md](USE-CASE-MAP.md) | Product landscape | accepted |
 | [SDD.md](SDD.md) | SDD | accepted |
 | [ADR-001-wallet-generation-service-architecture.md](ADR-001-wallet-generation-service-architecture.md) | ADR | accepted |
-| [SPEC-wallet-api.md](SPEC-wallet-api.md) | Spec | accepted |
-| [SPEC-public-page.md](SPEC-public-page.md) | Spec | accepted |
+| [specs/wallet-api.md](specs/wallet-api.md) | Spec | accepted |
+| [specs/public-page.md](specs/public-page.md) | Spec | accepted |
 | [DIAGRAMS.md](DIAGRAMS.md) | Diagrams | accepted |
 | [ROADMAP.md](ROADMAP.md) | Roadmap | accepted |
 | [WORKFLOW.md](WORKFLOW.md) | Workflow | accepted |

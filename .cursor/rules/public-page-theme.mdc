@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Public page theme
 
-Read [docs/SPEC-public-page.md](docs/SPEC-public-page.md) before changing markup.
+Read [docs/specs/public-page.md](docs/specs/public-page.md) before changing markup.
 
 1. Reuse `public-page/tokens.css` and `public-page/components.css`. Do not invent a second palette.
 2. Scanner page only: no edit, share, field-picker drawer, or Apple/Google save (private ingress).

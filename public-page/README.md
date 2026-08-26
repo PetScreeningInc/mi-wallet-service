@@ -1,6 +1,6 @@
 # Public page theme
 
-Static tokens and components for `GET /p/{publicId}`. Contract: [docs/SPEC-public-page.md](../docs/SPEC-public-page.md).
+Static tokens and components for `GET /p/{publicId}`. Contract: [docs/specs/public-page.md](../docs/specs/public-page.md).
 
 | File | Use |
 | --- | --- |

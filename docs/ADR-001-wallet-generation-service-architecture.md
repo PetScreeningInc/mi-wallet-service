@@ -4,7 +4,7 @@
 **Date:** 2026-08-25  
 **Decision Owners:** Engineering  
 **Scope:** This service only (not Platform/STR as-built)  
-**Relates-to:** [SDD](SDD.md), [PDR](PDR.md), [SPEC-wallet-api](SPEC-wallet-api.md), [CON-1309](https://petscreening.atlassian.net/browse/CON-1309)
+**Relates-to:** [SDD](SDD.md), [PDR](PDR.md), [wallet-api](specs/wallet-api.md), [CON-1309](https://petscreening.atlassian.net/browse/CON-1309)
 
 This is the **only** ADR for this repo. Platform Pet Card decisions are historical under [as-built/](as-built/). First caller is Platform; it maps domain data into `template` + `data`. Public page is hosted here, superseding [as-built ADR-004](as-built/ADR-004-public-page-is-fe.md).
 

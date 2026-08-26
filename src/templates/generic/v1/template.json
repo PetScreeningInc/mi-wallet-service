@@ -1,0 +1,13 @@
+{
+  "key": "GENERIC",
+  "version": 1,
+  "current": true,
+  "fields": {
+    "title": { "wallet": true, "public": true },
+    "subtitle": { "wallet": true, "public": true },
+    "imageUrl": { "wallet": true, "public": true },
+    "fields": { "wallet": true, "public": true },
+    "links": { "wallet": true, "public": true },
+    "ownerEmail": { "wallet": false, "public": false }
+  }
+}

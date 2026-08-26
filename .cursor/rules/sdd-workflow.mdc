@@ -8,7 +8,7 @@ alwaysApply: true
 Read [docs/ROADMAP.md](docs/ROADMAP.md) and [docs/WORKFLOW.md](docs/WORKFLOW.md) before implementing.
 
 1. Work the next open ROADMAP phase only (P0 before P1, etc.).
-2. If the HTTP contract or architecture changes, update `docs/SPEC-wallet-api.md`, `docs/SDD.md`, and `docs/DIAGRAMS.md` in the same change. New ADRs only for real decisions; do not re-document Platform as-built.
+2. If the HTTP contract or architecture changes, update `docs/specs/wallet-api.md`, `docs/SDD.md`, and `docs/DIAGRAMS.md` in the same change. New ADRs only for real decisions; do not re-document Platform as-built.
 3. Hexagonal: no PassKit/Google JWT/`Animal`/`tagNumber` in the domain. One `provider` per `POST /v1/wallets`. No NestJS auth. `GET /p/{publicId}` is always public.
 4. CON-1309 caller is `.cursor/skills/con-1309-mock-wallet-call` (file template + two POSTs). Do not integrate Platform, LTR, or FTA until Wave C.
 5. Branch `CON-1309-be-…`; commit `CON-1309: …`.
