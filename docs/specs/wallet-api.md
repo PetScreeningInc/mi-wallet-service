@@ -47,7 +47,7 @@ Request (Wave A / CON-1309 uses `GENERIC`; `PET_CARD` is a later product templat
 
 Invalid template, schema failure, missing `provider`, or more than one provider: **400** before persist.
 
-`publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}` (local default `http://localhost:3000`). Until P4, that path is not served.
+`publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}` (local default `http://localhost:3000`). **P4** serves that path as unauthenticated HTML.
 
 Response:
 

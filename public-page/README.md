@@ -9,7 +9,7 @@ Static tokens and components for `GET /p/{publicId}`. Contract: [docs/specs/publ
 | `preview.html` | Pet ID **slots** filled with prototype copy (Cooper). Not production data. |
 | `preview-generic.html` | CON-1309 `GENERIC` v1 composition (P4 target) |
 
-P4 should serve these styles from the Nest/Fastify static adapter and fill slots from public-flagged template fields. Do not copy Cooper, visa names, or document titles into the renderer.
+P4 inlines these styles on `GET /p/{publicId}` and fills slots from public-flagged template fields. Do not copy Cooper, visa names, or document titles into the renderer.
 
 The published Figma Make prototype is the visual source. The STR FigJam is exploratory only. Existing `pet-screening-fe` supplies two useful references:
 

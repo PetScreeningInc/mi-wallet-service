@@ -130,7 +130,8 @@ sequenceDiagram
 - Exactly one adapter runs per request. Apple and Google are never generated together.
 - If that adapter fails, the document and `publicUrl` can still return 201 with `status: FAILED`.
 - The provider call has an explicit timeout and limited retries so the request cannot hang.
-- **P3:** both branches use a stub adapter (`FAILED` / `PROVIDER_UNAVAILABLE`) until P5. `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`; HTML is P4.
+- **P3:** both branches use a stub adapter (`FAILED` / `PROVIDER_UNAVAILABLE`) until P5. `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`.
+- **P4:** `GET /p/{publicId}` serves HTML from public-flagged fields (DynamoDB; Redis is P7).
 
 ## 5. Sequence: getPublicPage
 
@@ -157,7 +158,7 @@ sequenceDiagram
   API-->>Scanner: 200 OK
 ```
 
-Always unauthenticated. The QR on the generated pass encodes this URL. Fields without `public: true` never reach the renderer. First slices omit the cache steps and hit DynamoDB only.
+Always unauthenticated. The QR on the generated pass encodes this URL. Fields without `public: true` never reach the renderer. **P4** omits the cache steps and hits DynamoDB only.
 
 ## Open decisions
 
