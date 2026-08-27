@@ -73,7 +73,8 @@ flowchart TB
 ```
 
 - Apple `.pkpass` is built and signed in-process, then stored in S3. Google is a signed JWT save URL, so there is no Google object to persist.
-- DynamoDB is the document store. Redis is **decided** as the public-page cache and is drawn dashed because the first features may read DynamoDB only.
+- DynamoDB is the document store (PK `id`, GSI `publicId-index`). Redis is **decided** as the public-page cache and is drawn dashed because the first features may read DynamoDB only.
+- Local DynamoDB is LocalStack (`docker compose --profile infra up -d localstack`). Nest stays on the host.
 
 ## 3. Use cases
 

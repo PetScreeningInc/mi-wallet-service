@@ -6,17 +6,18 @@ POC ticket: [CON-1309](https://petscreening.atlassian.net/browse/CON-1309). Desi
 
 ## Status
 
-**P1** is in: file template registry, Ajv, `GENERIC` v1 (`src/templates/generic/v1/`). Invalid `data` fails without DynamoDB. Next slice is **P2** (WalletDocument) — [docs/ROADMAP.md](docs/ROADMAP.md).
+**P2** is in: `WalletDocument` domain + DynamoDB adapter (`save`, `findById`, `findByPublicId`) against LocalStack. Next slice is **P3** (`POST /v1/wallets`) — [docs/ROADMAP.md](docs/ROADMAP.md).
 
 `POST /v1/wallets` and `GET /p/{publicId}` are specified, not implemented yet.
 
 ## Run locally
 
-Requires Node 20+.
+Requires Node 20+ and Docker (LocalStack).
 
 ```bash
 npm install
-cp .env.example .env   # PORT=3000
+cp .env.example .env
+docker compose --profile infra up -d localstack
 npm run start:dev
 ```
 
@@ -25,11 +26,15 @@ curl http://localhost:3000/health
 # {"status":"ok"}
 ```
 
+LocalStack serves DynamoDB at `http://localstack.lvh.me:4566`. If that hostname does not resolve, set `AWS_ENDPOINT_URL=http://127.0.0.1:4566`. Compose creates table `wallet-documents` (`id` PK, GSI `publicId-index`). Nest runs on the host, not in Docker.
+
+If port `4566` is already used by Platform (`platform-localstack-1`), do **not** start a second LocalStack. Reuse that instance: keep `AWS_ENDPOINT_URL=http://localstack.lvh.me:4566` and run `npm test` (the DynamoDB specs create the wallet table if it is missing) or exec the bootstrap against the running container.
+
 | Script | What it does |
 | --- | --- |
 | `npm run start:dev` | Watch mode |
 | `npm run build` | Compile to `dist/` |
-| `npm test` | Jest |
+| `npm test` | Jest (mapper always; LocalStack round-trip when `:4566` is up) |
 
 When `POST /v1/wallets` exists, use the CON-1309 mock skill (`.cursor/skills/con-1309-mock-wallet-call`), not Platform/LTR/FTA.
 

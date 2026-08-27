@@ -92,10 +92,11 @@ interface WalletDocument {
 }
 ```
 
-- `id` — internal document id (e.g. ULID).
-- `publicId` — cryptographically random, high entropy; used only in `/p/{publicId}`. Never a Platform animal id or tag number.
+- `id` — internal document id (ULID).
+- `publicId` — cryptographically random, high entropy (not sequential); used only in `/p/{publicId}`. Never a Platform animal id or tag number.
 - `source` / `sourceReference` — optional caller hints (e.g. `platform`, occupancy id) for idempotent lookup later; not required for CON-1309.
-- One `POST /v1/wallets` fills **exactly one** of `apple` or `google`. Need both platforms? Two requests (two documents unless a later attach-provider exists).
+- `status` — `ACTIVE` at create. `EXPIRED` is reserved for later `expiresAt` handling; not applied in Wave A.
+- `providers.apple` / `providers.google` — optional `ProviderState`: `{ status: 'PENDING' | 'READY' | 'FAILED'; url?: string; error?: string }`. One `POST /v1/wallets` fills **exactly one**. Need both platforms? Two requests (two documents unless a later attach-provider exists).
 
 ## Templates
 
@@ -153,7 +154,16 @@ First slices read DynamoDB by `publicId`. A Redis cache for that lookup is **dec
 
 ## Persistence
 
-DynamoDB access patterns: by `id`, by `publicId`, later by `source` + `sourceReference`, update provider state. Application depends on `WalletDocumentRepository` only.
+DynamoDB access patterns: by `id`, by `publicId`, later by `source` + `sourceReference`, update provider state. Application depends on `WalletDocumentRepository` only (`save`, `findById`, `findByPublicId`).
+
+Table `WALLET_DOCUMENTS_TABLE` (local default `wallet-documents`):
+
+- Partition key: `id` (S)
+- GSI `publicId-index`: partition key `publicId` (S)
+- Billing: on-demand (`PAY_PER_REQUEST`)
+- Dates stored as ISO-8601 strings; `data` as a document map
+
+Local: LocalStack (Docker Compose, port `4566`, `AWS_ENDPOINT_URL`). If Platform already owns `4566`, reuse that instance — do not start a second LocalStack. Production table is DevOps; this service does not provision AWS.
 
 Redis caches public-page reads by `publicId`. It is not the source of truth. First features may skip it; the port must stay easy to add without changing the generate path.
 
