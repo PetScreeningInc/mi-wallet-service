@@ -126,10 +126,11 @@ sequenceDiagram
   API-->>Caller: 201 Created
 ```
 
-- Validation failure returns 400 **before** any persist.
+- Validation failure returns 400 **before** any persist (`code` is `UNKNOWN_TEMPLATE`, `SCHEMA_INVALID`, `INVALID_PROVIDER`, or `INVALID_REQUEST`).
 - Exactly one adapter runs per request. Apple and Google are never generated together.
 - If that adapter fails, the document and `publicUrl` can still return 201 with `status: FAILED`.
 - The provider call has an explicit timeout and limited retries so the request cannot hang.
+- **P3:** both branches use a stub adapter (`FAILED` / `PROVIDER_UNAVAILABLE`) until P5. `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`; HTML is P4.
 
 ## 5. Sequence: getPublicPage
 

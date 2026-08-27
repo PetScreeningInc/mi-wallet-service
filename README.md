@@ -6,9 +6,9 @@ POC ticket: [CON-1309](https://petscreening.atlassian.net/browse/CON-1309). Desi
 
 ## Status
 
-**P2** is in: `WalletDocument` domain + DynamoDB adapter (`save`, `findById`, `findByPublicId`) against LocalStack. Next slice is **P3** (`POST /v1/wallets`) — [docs/ROADMAP.md](docs/ROADMAP.md).
+**P3** is in: `POST /v1/wallets` validates, persists a document, and returns `id` + `publicUrl`. The wallet adapter is a stub (`provider.status: FAILED`) until **P5**. Next slice is **P4** (`GET /p/{publicId}`) — [docs/ROADMAP.md](docs/ROADMAP.md).
 
-`POST /v1/wallets` and `GET /p/{publicId}` are specified, not implemented yet.
+`GET /p/{publicId}` is specified, not implemented yet. `publicUrl` in the create response points at that path.
 
 ## Run locally
 
@@ -20,6 +20,8 @@ cp .env.example .env
 docker compose --profile infra up -d localstack
 npm run start:dev
 ```
+
+`start:dev` loads `.env` from the repo root (LocalStack endpoint, table name, `PUBLIC_BASE_URL`).
 
 ```bash
 curl http://localhost:3000/health
@@ -34,9 +36,18 @@ If port `4566` is already used by Platform (`platform-localstack-1`), do **not**
 | --- | --- |
 | `npm run start:dev` | Watch mode |
 | `npm run build` | Compile to `dist/` |
-| `npm test` | Jest (mapper always; LocalStack round-trip when `:4566` is up) |
+| `npm test` | Jest (HTTP create + mapper always; LocalStack round-trip when `:4566` is up) |
 
-When `POST /v1/wallets` exists, use the CON-1309 mock skill (`.cursor/skills/con-1309-mock-wallet-call`), not Platform/LTR/FTA.
+Create (stub provider until P5):
+
+```bash
+./.cursor/skills/con-1309-mock-wallet-call/scripts/post-wallet.sh \
+  http://localhost:3000 \
+  APPLE \
+  .cursor/skills/con-1309-mock-wallet-call/payloads/demo-a.json
+```
+
+Use the CON-1309 mock skill, not Platform/LTR/FTA.
 
 ## Docs
 

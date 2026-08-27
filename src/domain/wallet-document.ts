@@ -42,6 +42,21 @@ export function createPublicId(): string {
   return randomBytes(16).toString('base64url');
 }
 
+export function applyProviderState(
+  document: WalletDocument,
+  provider: 'APPLE' | 'GOOGLE',
+  state: ProviderState,
+): WalletDocument {
+  return {
+    ...document,
+    providers: {
+      ...document.providers,
+      ...(provider === 'APPLE' ? { apple: state } : { google: state }),
+    },
+    updatedAt: new Date(),
+  };
+}
+
 export function createWalletDocument(
   input: CreateWalletDocumentInput,
 ): WalletDocument {

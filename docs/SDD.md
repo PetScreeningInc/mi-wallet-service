@@ -130,13 +130,13 @@ flowchart LR
 
 ## Create flow (synchronous)
 
-`POST /v1/wallets` with `Idempotency-Key` (callers should send it in production so retries do not duplicate documents). The handler itself has **no application authentication**.
+`POST /v1/wallets` with `Idempotency-Key` (callers should send it in production so retries do not duplicate documents; **P3 does not honor it** — see [ROADMAP P8](ROADMAP.md)). The handler itself has **no application authentication**.
 
 1. Resolve template (key + default current version unless specified).
 2. Ajv-validate `data`. Reject before persist on failure.
 3. Create `WalletDocument` + `publicId`; persist.
-4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries.
-5. Return **201 Created** with `publicUrl` and that provider’s status. Do not use 202.
+4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries. **P3:** a stub that returns `FAILED` / `PROVIDER_UNAVAILABLE` until P5.
+5. Return **201 Created** with `publicUrl` (`{PUBLIC_BASE_URL}/p/{publicId}`) and that provider’s status. Do not use 202.
 
 If that provider fails, the document and public page can still exist (`provider.status: FAILED`). Timeouts must not hang the HTTP request. Do **not** generate Apple and Google in the same request.
 
@@ -162,6 +162,8 @@ Table `WALLET_DOCUMENTS_TABLE` (local default `wallet-documents`):
 - GSI `publicId-index`: partition key `publicId` (S)
 - Billing: on-demand (`PAY_PER_REQUEST`)
 - Dates stored as ISO-8601 strings; `data` as a document map
+
+`publicUrl` uses `PUBLIC_BASE_URL` (local default `http://localhost:3000`).
 
 Local: LocalStack (Docker Compose, port `4566`, `AWS_ENDPOINT_URL`). If Platform already owns `4566`, reuse that instance — do not start a second LocalStack. Production table is DevOps; this service does not provision AWS.
 

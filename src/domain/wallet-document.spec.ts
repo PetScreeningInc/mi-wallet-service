@@ -1,4 +1,4 @@
-import { createWalletDocument } from './wallet-document';
+import { createWalletDocument, applyProviderState } from './wallet-document';
 
 describe('createWalletDocument', () => {
   it('assigns a ULID id, high-entropy publicId, ACTIVE status, and empty providers', () => {
@@ -30,5 +30,19 @@ describe('createWalletDocument', () => {
     expect(document.sourceReference).toBe('opaque-caller-key');
     expect(document.publicId).not.toBe('opaque-caller-key');
     expect(JSON.stringify(document)).not.toMatch(/passTypeIdentifier|genericObject|tagNumber/);
+  });
+
+  it('records exactly one provider slot', () => {
+    const document = createWalletDocument({
+      templateKey: 'GENERIC',
+      templateVersion: 1,
+      data: { title: 'Stay', fields: { a: '1', b: '2', c: '3' } },
+    });
+    const withApple = applyProviderState(document, 'APPLE', {
+      status: 'FAILED',
+      error: 'PROVIDER_UNAVAILABLE',
+    });
+    expect(withApple.providers.apple?.status).toBe('FAILED');
+    expect(withApple.providers.google).toBeUndefined();
   });
 });

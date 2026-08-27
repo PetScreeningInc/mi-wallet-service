@@ -32,7 +32,7 @@ P4 before the adapters so `publicUrl` is real as soon as POST persists a documen
 | **P0 Scaffold** | NestJS + Fastify hello app, hexagonal folders, health/ready. No domain. | **Done.** `GET /health` and `GET /ready` (`npm run start:dev`). |
 | **P1 Templates** | File-based registry, JSON Schema + Ajv, field flags `wallet` / `public`. Generic schema (title, fields, image, links). Not Animal types. | **Done.** Invalid `data` fails Ajv validation without DynamoDB (`GENERIC` v1 in `src/templates/generic/v1/`). |
 | **P2 WalletDocument** | Domain entity + DynamoDB adapter (`save`, `findById`, `findByPublicId`). | **Done.** Document round-trips by `id` and `publicId` (LocalStack DynamoDB). |
-| **P3 POST /v1/wallets** | One `provider` (`APPLE` or `GOOGLE`), persist, return `id` + `publicUrl`. Adapter may still be a stub (`FAILED` until P5). `Idempotency-Key` can wait until Wave B if local retries are rare. | 400 on bad template/`provider`; 201 with a `publicId`. |
+| **P3 POST /v1/wallets** | One `provider` (`APPLE` or `GOOGLE`), persist, return `id` + `publicUrl`. Adapter may still be a stub (`FAILED` until P5). `Idempotency-Key` can wait until Wave B if local retries are rare. | **Done.** 400 on bad template/`provider`; 201 with `id` + `publicUrl` (stub `FAILED` until P5). |
 | **P4 Public page** | `GET /p/{publicId}` HTML from **public** fields only, using [`public-page/`](../public-page/) + [public-page spec](specs/public-page.md). Always unauthenticated. DynamoDB read (no Redis yet). | Scanner/browser shows the payload fields in theme slots (`GENERIC`: hero + facts + links). |
 | **P5 First adapter** | Apple **or** Google — pick one for the timebox. Timeouts, S3 for `.pkpass` if Apple, JWT save URL if Google. QR = this service’s public URL. | Pass opens on a real device/simulator. **CON-1309 numeric gate.** |
 
@@ -75,4 +75,4 @@ Do not put these on the Wave A/B sequence until a new ADR says so.
 
 ## Suggested next code slice
 
-**P3** — `POST /v1/wallets` (one `provider`, persist, `id` + `publicUrl`; adapter may stub `FAILED` until P5).
+**P4** — `GET /p/{publicId}` HTML from public-flagged fields only (`public-page/` theme; unauthenticated).
