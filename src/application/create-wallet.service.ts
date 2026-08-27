@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import {
   applyProviderState,
   createWalletDocument,
@@ -18,6 +18,7 @@ import {
 import { ValidateWalletDataService } from './validate-wallet-data.service';
 
 export const PUBLIC_BASE_URL = Symbol('PUBLIC_BASE_URL');
+export const WALLET_PROVIDER_TIMEOUT_MS = Symbol('WALLET_PROVIDER_TIMEOUT_MS');
 
 export type WalletProviderType = 'APPLE' | 'GOOGLE';
 
@@ -150,13 +151,20 @@ function toHttpProvider(
 
 @Injectable()
 export class CreateWalletService {
+  private readonly timeoutMs: number;
+
   constructor(
     private readonly validateWalletData: ValidateWalletDataService,
     @Inject(WALLET_DOCUMENT_REPOSITORY)
     private readonly documents: WalletDocumentRepository,
     @Inject(WALLET_PROVIDER) private readonly walletProvider: WalletProvider,
     @Inject(PUBLIC_BASE_URL) private readonly publicBaseUrl: string,
-  ) {}
+    @Optional()
+    @Inject(WALLET_PROVIDER_TIMEOUT_MS)
+    timeoutMs?: number,
+  ) {
+    this.timeoutMs = timeoutMs ?? 8000;
+  }
 
   async execute(body: unknown): Promise<CreateWalletResult> {
     const parsed = parseCreateWalletBody(body);
@@ -198,7 +206,13 @@ export class CreateWalletService {
     });
     await this.documents.save(document);
 
-    const generated = await this.generateSafely(document, validation.template);
+    const publicUrl = publicWalletUrl(this.publicBaseUrl, document.publicId);
+    const generated = await this.generateSafely(
+      document,
+      validation.template,
+      parsed.value.provider,
+      publicUrl,
+    );
     const state = toProviderState(generated);
     const updated = applyProviderState(
       document,
@@ -210,7 +224,7 @@ export class CreateWalletService {
     return {
       ok: true,
       id: updated.id,
-      publicUrl: publicWalletUrl(this.publicBaseUrl, updated.publicId),
+      publicUrl,
       provider: toHttpProvider(parsed.value.provider, state),
     };
   }
@@ -218,11 +232,42 @@ export class CreateWalletService {
   private async generateSafely(
     document: WalletDocument,
     template: WalletTemplate,
+    provider: WalletProviderType,
+    publicUrl: string,
   ): Promise<GeneratedWallet> {
-    try {
-      return await this.walletProvider.generate(document, template);
-    } catch {
-      return { status: 'FAILED', error: 'PROVIDER_UNAVAILABLE' };
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        return await withTimeout(
+          this.walletProvider.generate(document, template, {
+            provider,
+            publicUrl,
+          }),
+          this.timeoutMs,
+        );
+      } catch {
+        if (attempt === 1) {
+          return { status: 'FAILED', error: 'PROVIDER_UNAVAILABLE' };
+        }
+      }
     }
+    return { status: 'FAILED', error: 'PROVIDER_UNAVAILABLE' };
   }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('PROVIDER_TIMEOUT'));
+    }, ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }

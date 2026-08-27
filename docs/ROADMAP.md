@@ -34,7 +34,7 @@ P4 before the adapters so `publicUrl` is real as soon as POST persists a documen
 | **P2 WalletDocument** | Domain entity + DynamoDB adapter (`save`, `findById`, `findByPublicId`). | **Done.** Document round-trips by `id` and `publicId` (LocalStack DynamoDB). |
 | **P3 POST /v1/wallets** | One `provider` (`APPLE` or `GOOGLE`), persist, return `id` + `publicUrl`. Adapter may still be a stub (`FAILED` until P5). `Idempotency-Key` can wait until Wave B if local retries are rare. | **Done.** 400 on bad template/`provider`; 201 with `id` + `publicUrl` (stub `FAILED` until P5). |
 | **P4 Public page** | `GET /p/{publicId}` HTML from **public** fields only, using [`public-page/`](../public-page/) + [public-page spec](specs/public-page.md). Always unauthenticated. DynamoDB read (no Redis yet). | **Done.** Scanner/browser shows public-flagged fields in theme slots (`GENERIC`: hero + facts + links). |
-| **P5 First adapter** | Apple **or** Google — pick one for the timebox. Timeouts, S3 for `.pkpass` if Apple, JWT save URL if Google. QR = this service’s public URL. | Pass opens on a real device/simulator. **CON-1309 numeric gate.** |
+| **P5 First adapter** | Apple **or** Google — pick one for the timebox. Timeouts, S3 for `.pkpass` if Apple, JWT save URL if Google. QR = this service’s public URL. | **Done (Google).** Save-to-Wallet JWT; QR is `publicUrl`. Apple stays stub `FAILED` until P6. |
 
 Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wallet-call/`): file template `GENERIC` v1, two static POSTs (`demo-a`, `demo-b`). Not LTR/FTA/Platform.
 
@@ -75,4 +75,4 @@ Do not put these on the Wave A/B sequence until a new ADR says so.
 
 ## Suggested next code slice
 
-**P5** — first wallet adapter (Apple **or** Google). QR/barcode destination is this service’s `publicUrl`.
+**P6** — Apple PassKit adapter (the provider not done in P5). Still one provider per POST.

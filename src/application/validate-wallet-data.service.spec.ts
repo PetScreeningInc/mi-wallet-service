@@ -5,7 +5,7 @@ import {
   defaultTemplatesDirectory,
   FileTemplateRegistry,
 } from '../adapters/templates/file-template-registry';
-import { pickPublicData } from '../domain/wallet-template';
+import { pickPublicData, pickWalletData } from '../domain/wallet-template';
 import { TEMPLATE_REGISTRY } from '../ports/template-registry.port';
 import { ValidateWalletDataService } from './validate-wallet-data.service';
 
@@ -120,5 +120,24 @@ describe('ValidateWalletDataService', () => {
     );
     expect(publicData.ownerEmail).toBeUndefined();
     expect(publicData.title).toBe('Stay with Pico');
+  });
+
+  it('keeps ownerEmail off the wallet projection', () => {
+    const payload = skillPayload('demo-a.json');
+    const result = service.execute({
+      template: 'GENERIC',
+      templateVersion: 1,
+      data: payload.data,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    const walletData = pickWalletData(
+      payload.data as Record<string, unknown>,
+      result.template.fields,
+    );
+    expect(walletData.ownerEmail).toBeUndefined();
+    expect(walletData.title).toBe('Stay with Pico');
   });
 });

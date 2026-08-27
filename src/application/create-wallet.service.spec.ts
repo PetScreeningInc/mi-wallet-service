@@ -16,6 +16,7 @@ import { WALLET_PROVIDER } from '../ports/wallet-provider.port';
 import {
   CreateWalletService,
   PUBLIC_BASE_URL,
+  WALLET_PROVIDER_TIMEOUT_MS,
   parseCreateWalletBody,
 } from './create-wallet.service';
 import { ValidateWalletDataService } from './validate-wallet-data.service';
@@ -162,5 +163,84 @@ describe('CreateWalletService', () => {
     expect(result.code).toBe('SCHEMA_INVALID');
     expect(result.issues?.length).toBeGreaterThan(0);
     expect(repository.items.size).toBe(0);
+  });
+});
+
+describe('CreateWalletService provider timeout', () => {
+  it('returns FAILED when generate hangs past the timeout', async () => {
+    const repository = new InMemoryWalletDocumentRepository();
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        {
+          provide: TEMPLATE_REGISTRY,
+          useValue: FileTemplateRegistry.load(defaultTemplatesDirectory()),
+        },
+        ValidateWalletDataService,
+        CreateWalletService,
+        { provide: WALLET_DOCUMENT_REPOSITORY, useValue: repository },
+        {
+          provide: WALLET_PROVIDER,
+          useValue: {
+            generate: () => new Promise(() => undefined),
+          },
+        },
+        { provide: PUBLIC_BASE_URL, useValue: 'http://localhost:3000' },
+        { provide: WALLET_PROVIDER_TIMEOUT_MS, useValue: 20 },
+      ],
+    }).compile();
+    const timedOut = moduleRef.get(CreateWalletService);
+    const result = await timedOut.execute(skillPayload('demo-b.json'));
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.provider).toEqual({
+      type: 'APPLE',
+      status: 'FAILED',
+      error: 'PROVIDER_UNAVAILABLE',
+    });
+  });
+
+  it('persists a Google save URL when the adapter is READY', async () => {
+    const repository = new InMemoryWalletDocumentRepository();
+    const generate = jest.fn().mockResolvedValue({
+      status: 'READY',
+      url: 'https://pay.google.com/gp/v/save/token',
+    });
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        {
+          provide: TEMPLATE_REGISTRY,
+          useValue: FileTemplateRegistry.load(defaultTemplatesDirectory()),
+        },
+        ValidateWalletDataService,
+        CreateWalletService,
+        { provide: WALLET_DOCUMENT_REPOSITORY, useValue: repository },
+        { provide: WALLET_PROVIDER, useValue: { generate } },
+        { provide: PUBLIC_BASE_URL, useValue: 'http://localhost:3000' },
+      ],
+    }).compile();
+    const ready = moduleRef.get(CreateWalletService);
+    const result = await ready.execute({
+      ...skillPayload('demo-b.json'),
+      provider: 'GOOGLE',
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.provider).toEqual({
+      type: 'GOOGLE',
+      status: 'READY',
+      url: 'https://pay.google.com/gp/v/save/token',
+    });
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({ templateKey: 'GENERIC' }),
+      expect.objectContaining({ key: 'GENERIC' }),
+      {
+        provider: 'GOOGLE',
+        publicUrl: result.publicUrl,
+      },
+    );
   });
 });

@@ -130,8 +130,9 @@ sequenceDiagram
 - Exactly one adapter runs per request. Apple and Google are never generated together.
 - If that adapter fails, the document and `publicUrl` can still return 201 with `status: FAILED`.
 - The provider call has an explicit timeout and limited retries so the request cannot hang.
-- **P3:** both branches use a stub adapter (`FAILED` / `PROVIDER_UNAVAILABLE`) until P5. `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`.
+- **P3:** `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`.
 - **P4:** `GET /p/{publicId}` serves HTML from public-flagged fields (DynamoDB; Redis is P7).
+- **P5:** Google adapter signs a Save-to-Wallet JWT (no `objects.insert`); barcode is `publicUrl`. Apple still returns `FAILED` / `PROVIDER_UNAVAILABLE` until P6.
 
 ## 5. Sequence: getPublicPage
 

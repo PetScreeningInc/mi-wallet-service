@@ -121,6 +121,7 @@ function loadOne(dir: string, ajv: Ajv): LoadedTemplate {
   if (typeof schema !== 'object' || schema === null || Array.isArray(schema)) {
     throw new Error(`Invalid schema.json in ${dir}`);
   }
+  const googleMapping = loadOptionalObject(path.join(dir, 'google.json'));
   return {
     current: parsed.current,
     template: {
@@ -128,6 +129,7 @@ function loadOne(dir: string, ajv: Ajv): LoadedTemplate {
       version: parsed.version,
       fields: parsed.fields,
       schema,
+      ...(googleMapping !== undefined ? { googleMapping } : {}),
     },
     validateFn: ajv.compile(schema),
   };
@@ -177,6 +179,19 @@ function parseManifest(
 
 function readJson(filePath: string): unknown {
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+}
+
+function loadOptionalObject(
+  filePath: string,
+): Record<string, unknown> | undefined {
+  if (!fs.existsSync(filePath)) {
+    return undefined;
+  }
+  const raw = readJson(filePath);
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+    throw new Error(`Invalid JSON object in ${filePath}`);
+  }
+  return raw as Record<string, unknown>;
 }
 
 function toIssues(errors: ErrorObject[]): SchemaIssue[] {

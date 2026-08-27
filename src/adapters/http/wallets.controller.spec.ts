@@ -11,6 +11,7 @@ import {
   WALLET_DOCUMENT_REPOSITORY,
   type WalletDocumentRepository,
 } from '../../ports/wallet-document-repository.port';
+import { GOOGLE_WALLET_CONFIG } from '../providers/google-wallet.config';
 import { WalletsModule } from './wallets.module';
 
 class InMemoryWalletDocumentRepository implements WalletDocumentRepository {
@@ -64,6 +65,13 @@ describe('WalletsController', () => {
       .useValue(repository)
       .overrideProvider(PUBLIC_BASE_URL)
       .useValue('http://localhost:3000')
+      .overrideProvider(GOOGLE_WALLET_CONFIG)
+      .useValue({
+        saEmail: '',
+        privateKeyPem: '',
+        issuerId: '',
+        origins: [],
+      })
       .compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(
@@ -81,7 +89,7 @@ describe('WalletsController', () => {
     repository.items.clear();
   });
 
-  it('returns 201 with id, publicUrl, and stub provider', async () => {
+  it('returns 201 with id, publicUrl, and stub Apple provider', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/v1/wallets',
@@ -114,5 +122,21 @@ describe('WalletsController', () => {
       message: 'provider must be APPLE or GOOGLE',
     });
     expect(repository.items.size).toBe(0);
+  });
+
+  it('returns 201 with FAILED Google when credentials are not configured', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/wallets',
+      payload: { ...demoA(), provider: 'GOOGLE' },
+    });
+    expect(response.statusCode).toBe(201);
+    expect(JSON.parse(response.body)).toMatchObject({
+      provider: {
+        type: 'GOOGLE',
+        status: 'FAILED',
+        error: 'PROVIDER_UNAVAILABLE',
+      },
+    });
   });
 });

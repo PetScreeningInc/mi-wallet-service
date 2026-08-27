@@ -16,6 +16,10 @@ describe('FileTemplateRegistry', () => {
       wallet: false,
       public: false,
     });
+    expect(template?.googleMapping).toEqual({
+      classSuffix: 'generic-v1',
+      hexBackgroundColor: '#142FE1',
+    });
   });
 
   it('defaults to the current version when version is omitted', () => {

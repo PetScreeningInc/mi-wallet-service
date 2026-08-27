@@ -25,7 +25,8 @@ Say so. Do not fake a 201. Point at [docs/ROADMAP.md](../../../docs/ROADMAP.md) 
 2. Ensure a **file template** exists (CON-1309 has no `createTemplate` API). `GENERIC` v1 lives at `src/templates/generic/v1/`. If the registry is empty, add a generic template from [templates.md](templates.md) (do not invent Animal types).
 3. Run **two** POSTs with the two payloads in `payloads/` (distinct `data`, same contract). That is the CON-1309 numeric gate.
 4. Print `id`, `publicUrl`, and `provider`. Open or curl `GET {publicUrl}` and check public fields only.
-5. If `provider.status` is `FAILED` and P5 is not done, that is expected for a stub adapter.
+5. For a device-openable Google pass, POST with `"provider": "GOOGLE"` and set `GOOGLE_WALLET_SA_EMAIL`, `GOOGLE_WALLET_SA_PRIVATE_KEY`, and `GOOGLE_WALLET_ISSUER_ID`. Apple stays `FAILED` until P6.
+6. If `provider.status` is `FAILED` and Google env is unset (or the request is `APPLE`), that is expected until that adapter is configured.
 
 Prefer the script over ad-hoc curl:
 
