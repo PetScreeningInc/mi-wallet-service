@@ -44,7 +44,7 @@ Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wall
 
 | Phase | What ships | Notes |
 | --- | --- | --- |
-| **P6 Second adapter** | The provider not done in P5. Still **one provider per POST**. | Two POSTs if a product wants both platforms. |
+| **P6 Second adapter** | The provider not done in P5. Still **one provider per POST**. | **Done (Apple).** Generic `.pkpass`, S3, `GET /v1/wallets/{id}/apple`. One provider per POST. |
 | **P7 Redis cache** | Cache `GET /p/{publicId}` by `publicId`. DynamoDB stays source of truth. | **Decided**, not in Wave A. Invalidate or TTL when documents change. |
 | **P8 Idempotency** | Honor `Idempotency-Key` so caller retries do not duplicate documents. | Required before Platform is a real caller. |
 | **P9 Observability** | OpenTelemetry + Datadog on create, generate, public GET, provider timeouts. | |
@@ -75,4 +75,4 @@ Do not put these on the Wave A/B sequence until a new ADR says so.
 
 ## Suggested next code slice
 
-**P6** — Apple PassKit adapter (the provider not done in P5). Still one provider per POST.
+**P7** — Redis cache for `GET /p/{publicId}` (DynamoDB stays source of truth).

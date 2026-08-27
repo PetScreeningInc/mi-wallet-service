@@ -1,6 +1,7 @@
 import { createWalletDocument } from '../../domain/wallet-document';
 import type { WalletTemplate } from '../../domain/wallet-template';
 import { DispatchWalletProvider } from './dispatch-wallet-provider';
+import type { AppleWalletProvider } from './apple-wallet.provider';
 import type { GoogleWalletProvider } from './google-wallet.provider';
 
 const template: WalletTemplate = {
@@ -11,11 +12,15 @@ const template: WalletTemplate = {
 };
 
 describe('DispatchWalletProvider', () => {
-  it('leaves Apple on the stub FAILED path', async () => {
-    const google = {
-      generate: jest.fn(),
-    } as unknown as GoogleWalletProvider;
-    const dispatch = new DispatchWalletProvider(google);
+  it('routes Apple to the Apple adapter', async () => {
+    const google = { generate: jest.fn() } as unknown as GoogleWalletProvider;
+    const apple = {
+      generate: jest.fn().mockResolvedValue({
+        status: 'READY',
+        url: 'http://localhost:3000/v1/wallets/01/apple',
+      }),
+    } as unknown as AppleWalletProvider;
+    const dispatch = new DispatchWalletProvider(google, apple);
     const document = createWalletDocument({
       templateKey: 'GENERIC',
       templateVersion: 1,
@@ -27,10 +32,15 @@ describe('DispatchWalletProvider', () => {
         publicUrl: 'http://localhost:3000/p/x',
       }),
     ).resolves.toEqual({
-      status: 'FAILED',
-      error: 'PROVIDER_UNAVAILABLE',
+      status: 'READY',
+      url: 'http://localhost:3000/v1/wallets/01/apple',
     });
     expect(google.generate).not.toHaveBeenCalled();
+    expect(apple.generate).toHaveBeenCalledWith(
+      document,
+      template,
+      'http://localhost:3000/p/x',
+    );
   });
 
   it('routes Google to the Google adapter', async () => {
@@ -40,7 +50,8 @@ describe('DispatchWalletProvider', () => {
         url: 'https://pay.google.com/gp/v/save/token',
       }),
     } as unknown as GoogleWalletProvider;
-    const dispatch = new DispatchWalletProvider(google);
+    const apple = { generate: jest.fn() } as unknown as AppleWalletProvider;
+    const dispatch = new DispatchWalletProvider(google, apple);
     const document = createWalletDocument({
       templateKey: 'GENERIC',
       templateVersion: 1,
@@ -55,10 +66,6 @@ describe('DispatchWalletProvider', () => {
       status: 'READY',
       url: 'https://pay.google.com/gp/v/save/token',
     });
-    expect(google.generate).toHaveBeenCalledWith(
-      document,
-      template,
-      'http://localhost:3000/p/x',
-    );
+    expect(apple.generate).not.toHaveBeenCalled();
   });
 });

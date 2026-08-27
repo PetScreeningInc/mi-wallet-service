@@ -134,7 +134,7 @@ File catalog: `src/templates/{key}/v{n}/` (`template.json` + JSON Schema). No te
 | `links` | no (`{ label, url }[]`) | true | true |
 | `ownerEmail` | no | false | false |
 
-Additional properties are rejected. Google mapping for this version is `src/templates/generic/v1/google.json`. Apple mapping files land with P6.
+Additional properties are rejected. Google mapping is `src/templates/generic/v1/google.json`. Apple mapping is `src/templates/generic/v1/apple.json`.
 
 ### Platform / CON-1297 (caller mapping, not API types)
 
@@ -166,6 +166,6 @@ Platform may put in `data` (schema permitting) things such as: name, photo URL, 
 
 Schema example: `{ "code": "SCHEMA_INVALID", "message": "data does not match the template schema", "issues": [{ "path": "/title", "message": "must have required property 'title'" }] }`.
 
-P5 (Google): a valid create with `provider: GOOGLE` returns **201** with `provider.status: READY` and a Save-to-Wallet `url` when Google credentials are configured; otherwise `FAILED` / `PROVIDER_UNAVAILABLE`. Apple is still the P3 stub until P6. Inspect `provider.status`; do not treat FAILED as HTTP 5xx.
+P5/P6: a valid create returns **201** with `provider.status: READY` and a provider `url` when that adapter is configured (Google Save-to-Wallet JWT, or Apple `GET /v1/wallets/{id}/apple`). Missing credentials still yield `FAILED` / `PROVIDER_UNAVAILABLE`. Inspect `provider.status`; do not treat FAILED as HTTP 5xx.
 
 The app does not use 401/403. Unreachable generate/download from the internet is enforced by DevOps (private vs public ingress), not by this API.

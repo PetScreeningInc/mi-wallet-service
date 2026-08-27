@@ -122,6 +122,7 @@ function loadOne(dir: string, ajv: Ajv): LoadedTemplate {
     throw new Error(`Invalid schema.json in ${dir}`);
   }
   const googleMapping = loadOptionalObject(path.join(dir, 'google.json'));
+  const appleMapping = loadOptionalObject(path.join(dir, 'apple.json'));
   return {
     current: parsed.current,
     template: {
@@ -130,6 +131,7 @@ function loadOne(dir: string, ajv: Ajv): LoadedTemplate {
       fields: parsed.fields,
       schema,
       ...(googleMapping !== undefined ? { googleMapping } : {}),
+      ...(appleMapping !== undefined ? { appleMapping } : {}),
     },
     validateFn: ajv.compile(schema),
   };

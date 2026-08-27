@@ -9,6 +9,7 @@ export type WalletTemplate = {
   fields: Record<string, FieldFlags>;
   schema: object;
   googleMapping?: Record<string, unknown>;
+  appleMapping?: Record<string, unknown>;
 };
 
 export type SchemaIssue = {

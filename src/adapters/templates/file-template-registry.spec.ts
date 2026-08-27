@@ -20,6 +20,13 @@ describe('FileTemplateRegistry', () => {
       classSuffix: 'generic-v1',
       hexBackgroundColor: '#142FE1',
     });
+    expect(template?.appleMapping).toEqual({
+      organizationName: 'Passport',
+      description: 'Wallet pass',
+      foregroundColor: 'rgb(255, 255, 255)',
+      labelColor: 'rgb(255, 255, 255)',
+      backgroundColor: 'rgb(20, 47, 225)',
+    });
   });
 
   it('defaults to the current version when version is omitted', () => {

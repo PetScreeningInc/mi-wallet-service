@@ -135,7 +135,7 @@ flowchart LR
 1. Resolve template (key + default current version unless specified).
 2. Ajv-validate `data`. Reject before persist on failure.
 3. Create `WalletDocument` + `publicId`; persist.
-4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries. **P5:** Google Save-to-Wallet JWT when `GOOGLE_WALLET_*` is configured. Apple remains a stub (`FAILED` / `PROVIDER_UNAVAILABLE`) until P6.
+4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries. **P5:** Google Save-to-Wallet JWT when `GOOGLE_WALLET_*` is configured. **P6:** Apple generic `.pkpass` when `APPLE_PASS_*` is configured; download `GET /v1/wallets/{id}/apple`.
 5. Return **201 Created** with `publicUrl` (`{PUBLIC_BASE_URL}/p/{publicId}`) and that provider’s status. Do not use 202.
 
 If that provider fails, the document and public page can still exist (`provider.status: FAILED`). Timeouts must not hang the HTTP request. Do **not** generate Apple and Google in the same request.

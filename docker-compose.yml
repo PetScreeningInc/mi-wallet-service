@@ -3,9 +3,10 @@ services:
     image: gresau/localstack-persist:latest
     hostname: localstack.lvh.me
     environment:
-      SERVICES: dynamodb
+      SERVICES: dynamodb,s3
       AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
       WALLET_DOCUMENTS_TABLE: ${WALLET_DOCUMENTS_TABLE:-wallet-documents}
+      WALLET_ARTIFACTS_BUCKET: ${WALLET_ARTIFACTS_BUCKET:-wallet-artifacts}
     profiles:
       - infra
       - dev
