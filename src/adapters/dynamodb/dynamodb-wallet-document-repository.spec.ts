@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { createWalletDocument } from '../../domain/wallet-document';
+import { awsClientBase } from '../aws/aws-client-options';
 import { DynamoDbWalletDocumentRepository } from './dynamodb-wallet-document-repository';
 import { ensureWalletDocumentsTable } from './ensure-wallet-documents-table';
 
@@ -45,14 +46,12 @@ describe('DynamoDbWalletDocumentRepository', () => {
     if (!endpoint) {
       return;
     }
-    const lowLevel = new DynamoDBClient({
-      region: process.env.AWS_REGION ?? 'us-east-1',
-      endpoint,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? 'localstack',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? 'localstack',
-      },
-    });
+    const lowLevel = new DynamoDBClient(
+      awsClientBase({
+        ...process.env,
+        AWS_ENDPOINT_URL: endpoint,
+      }),
+    );
     await ensureWalletDocumentsTable(lowLevel, tableName);
     const client = DynamoDBDocumentClient.from(lowLevel, {
       marshallOptions: { removeUndefinedValues: true },

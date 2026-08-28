@@ -169,7 +169,7 @@ Table `WALLET_DOCUMENTS_TABLE` (local default `wallet-documents`):
 
 `publicUrl` uses `PUBLIC_BASE_URL` (local default `http://localhost:3000`).
 
-Local: LocalStack (Docker Compose, port `4566`, `AWS_ENDPOINT_URL`). If Platform already owns `4566`, reuse that instance — do not start a second LocalStack. Production table is DevOps; this service does not provision AWS.
+Local: LocalStack (Docker Compose, port `4566`, `AWS_ENDPOINT_URL`). If Platform already owns `4566`, reuse that instance — do not start a second LocalStack. DynamoDB and S3 clients use static keys when `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` are set, dummy LocalStack keys when only `AWS_ENDPOINT_URL` is set, and the default AWS credential chain otherwise. Production table is DevOps; this service does not provision AWS.
 
 Redis caches public-page reads by `publicId`. It is not the source of truth. First features may skip it; the port must stay easy to add without changing the generate path.
 

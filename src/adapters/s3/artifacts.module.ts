@@ -1,17 +1,14 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { Module } from '@nestjs/common';
 import { WALLET_ARTIFACT_STORE } from '../../ports/wallet-artifact-store.port';
+import { awsClientBase } from '../aws/aws-client-options';
 import { S3WalletArtifactStore } from './s3-wallet-artifact-store';
 
 function createS3Client(): S3Client {
-  const endpoint = process.env.AWS_ENDPOINT_URL;
+  const base = awsClientBase();
   return new S3Client({
-    region: process.env.AWS_REGION ?? 'us-east-1',
-    ...(endpoint ? { endpoint, forcePathStyle: true } : {}),
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? 'localstack',
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? 'localstack',
-    },
+    ...base,
+    ...(base.endpoint ? { forcePathStyle: true } : {}),
   });
 }
 
