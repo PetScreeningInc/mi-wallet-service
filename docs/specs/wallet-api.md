@@ -79,7 +79,9 @@ If generation fails after persist:
 }
 ```
 
-`publicUrl` is the QR/barcode destination on the generated pass.
+`provider.error` codes: `PROVIDER_UNAVAILABLE` (not configured, timeout, or signing/storage failure) and `ASSET_UNAVAILABLE` (Apple pass images missing from the build).
+
+`publicUrl` is the default QR/barcode destination on the generated pass. An Apple template may override the barcode message with an HTTPS `barcodeUrl`; invalid or non-HTTPS values fall back to `publicUrl`. `GENERIC` v1 does not set an override, so the QR is `{PUBLIC_BASE_URL}/p/{publicId}`.
 
 Need Apple **and** Google? Platform (or the caller) issues **two** POSTs. Each request creates its own document unless a later attach-provider API exists.
 

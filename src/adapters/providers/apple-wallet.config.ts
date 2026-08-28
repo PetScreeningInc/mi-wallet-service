@@ -8,7 +8,6 @@ export type AppleWalletConfig = {
   certificatePem: string;
   privateKeyPem: string;
   wwdrCertificatePem: string;
-  privateKeyPassphrase?: string;
 };
 
 export function isAppleWalletConfigured(config: AppleWalletConfig): boolean {
@@ -22,18 +21,13 @@ export function isAppleWalletConfigured(config: AppleWalletConfig): boolean {
 }
 
 export function appleWalletConfigFromEnv(): AppleWalletConfig {
-  const config: AppleWalletConfig = {
+  return {
     passTypeIdentifier: process.env.APPLE_PASS_TYPE_ID ?? '',
     teamIdentifier: process.env.APPLE_TEAM_ID ?? '',
     certificatePem: readPem(process.env.APPLE_PASS_CERTIFICATE ?? ''),
     privateKeyPem: readPem(process.env.APPLE_PASS_KEY ?? ''),
     wwdrCertificatePem: readPem(process.env.APPLE_WWDR_CERTIFICATE ?? ''),
   };
-  const passphrase = process.env.APPLE_PASS_KEY_PASSPHRASE?.trim();
-  if (passphrase) {
-    config.privateKeyPassphrase = passphrase;
-  }
-  return config;
 }
 
 function readPem(value: string): string {

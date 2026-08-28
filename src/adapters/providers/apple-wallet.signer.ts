@@ -5,31 +5,30 @@ export type AppleSigningMaterial = {
   certificatePem: string;
   privateKeyPem: string;
   wwdrCertificatePem: string;
-  privateKeyPassphrase?: string;
 };
 
 export function signAppleManifest(
-  manifestJson: string,
+  manifestBytes: Buffer,
   material: AppleSigningMaterial,
 ): Buffer {
   const certificate = forge.pki.certificateFromPem(material.certificatePem);
   const wwdr = forge.pki.certificateFromPem(material.wwdrCertificatePem);
-  const privateKey = loadPrivateKey(
-    material.privateKeyPem,
-    material.privateKeyPassphrase,
-  );
+  const privateKey = forge.pki.privateKeyFromPem(material.privateKeyPem);
 
   const p7 = forge.pkcs7.createSignedData();
-  p7.content = forge.util.createBuffer(manifestJson, 'utf8');
+  // Sign the manifest bytes verbatim; 'binary' is a byte-for-byte view, not a re-encode.
+  p7.content = forge.util.createBuffer(manifestBytes.toString('binary'));
   p7.addCertificate(certificate);
   p7.addCertificate(wwdr);
   p7.addSigner({
     key: privateKey as forge.pki.rsa.PrivateKey,
     certificate,
-    digestAlgorithm: forge.pki.oids.sha256,
+    // PassKit expects the SHA-1 CMS profile and requires the S/MIME signingTime.
+    digestAlgorithm: forge.pki.oids.sha1,
     authenticatedAttributes: [
       { type: forge.pki.oids.contentType, value: forge.pki.oids.data },
       { type: forge.pki.oids.messageDigest },
+      { type: forge.pki.oids.signingTime },
     ],
   });
   p7.sign({ detached: true });
@@ -45,17 +44,4 @@ export async function bundlePkpass(files: Record<string, Buffer>): Promise<Buffe
     type: 'nodebuffer',
     compression: 'DEFLATE',
   });
-}
-
-function loadPrivateKey(
-  pem: string,
-  passphrase?: string,
-): forge.pki.PrivateKey {
-  const key = passphrase
-    ? forge.pki.decryptRsaPrivateKey(pem, passphrase)
-    : forge.pki.privateKeyFromPem(pem);
-  if (!key) {
-    throw new Error('Invalid Apple pass private key');
-  }
-  return key;
 }

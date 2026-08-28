@@ -142,7 +142,11 @@ If that provider fails, the document and public page can still exist (`provider.
 
 Apple adapter (reuse Platform learnings): generic PassKit zip, SHA-1 manifest, CMS signature, S3 object. Google adapter: Save-to-Wallet JWT, no `objects.insert`. Object/class ids must not be tag numbers.
 
-QR/barcode message = this service’s public URL, not Passport `pet-card/{tagNumber}`.
+The Apple zip must carry `icon.png` (PassKit rejects the pass without it). Pass images ship in the repo at `src/adapters/providers/apple-assets/` (`icon.png` 29×29, `icon@2x.png` 58×58, `logo.png` 160×50) — not env vars, not a runtime download. The adapter reads them once per process and hashes them into the manifest; a missing file gives `provider.status: FAILED` with `ASSET_UNAVAILABLE`.
+
+Apple uses exactly five settings: `APPLE_PASS_TYPE_ID`, `APPLE_TEAM_ID`, `APPLE_PASS_CERTIFICATE`, `APPLE_PASS_KEY`, and `APPLE_WWDR_CERTIFICATE`. They come from process environment variables or the repo-root `.env` file used for local development; an existing process environment variable takes precedence over `.env`. Certificate/key values may be inline PEM or filesystem paths. The private key must be unencrypted; no passphrase setting is supported. `APPLE_WWDR_CERTIFICATE` is the WWDR **G4 intermediate** that issued the pass certificate; the Apple Root CA leaves an incomplete chain and the device refuses the pass.
+
+QR/barcode message defaults to this service’s public URL. An Apple template may provide an HTTPS `barcodeUrl` override; `GENERIC` v1 does not set one, so the QR is `{PUBLIC_BASE_URL}/p/{publicId}`. Invalid or non-HTTPS overrides fall back to `publicUrl`.
 
 ## Public page
 

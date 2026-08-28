@@ -7,13 +7,14 @@ import {
   WALLET_ARTIFACT_STORE,
   type WalletArtifactStore,
 } from '../../ports/wallet-artifact-store.port';
+import { loadApplePassImages } from './apple-wallet.assets';
 import {
   APPLE_WALLET_CONFIG,
   isAppleWalletConfigured,
   type AppleWalletConfig,
 } from './apple-wallet.config';
 import {
-  applePassManifest,
+  buildAppleManifestBytes,
   buildApplePassJson,
 } from './apple-wallet.mapper';
 import { bundlePkpass, signAppleManifest } from './apple-wallet.signer';
@@ -35,6 +36,13 @@ export class AppleWalletProvider {
       return { status: 'FAILED', error: 'PROVIDER_UNAVAILABLE' };
     }
 
+    let images: Record<string, Buffer>;
+    try {
+      images = loadApplePassImages();
+    } catch {
+      return { status: 'FAILED', error: 'ASSET_UNAVAILABLE' };
+    }
+
     try {
       const pass = buildApplePassJson({
         document,
@@ -45,17 +53,19 @@ export class AppleWalletProvider {
         serialNumber: randomUUID(),
       });
       const passJson = Buffer.from(`${JSON.stringify(pass)}\n`, 'utf8');
-      const files = { 'pass.json': passJson };
-      const manifestJson = `${JSON.stringify(applePassManifest(files))}\n`;
-      const signature = signAppleManifest(manifestJson, {
+      const fileEntries: Record<string, Buffer> = {
+        'pass.json': passJson,
+        ...images,
+      };
+      const manifestBytes = buildAppleManifestBytes(fileEntries);
+      const signature = signAppleManifest(manifestBytes, {
         certificatePem: this.config.certificatePem,
         privateKeyPem: this.config.privateKeyPem,
         wwdrCertificatePem: this.config.wwdrCertificatePem,
-        privateKeyPassphrase: this.config.privateKeyPassphrase,
       });
       const pkpass = await bundlePkpass({
-        ...files,
-        'manifest.json': Buffer.from(manifestJson, 'utf8'),
+        ...fileEntries,
+        'manifest.json': manifestBytes,
         signature,
       });
       await this.artifacts.putApplePass(document.id, pkpass);

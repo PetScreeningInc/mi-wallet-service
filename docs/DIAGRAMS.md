@@ -132,7 +132,7 @@ sequenceDiagram
 - The provider call has an explicit timeout and limited retries so the request cannot hang.
 - **P3:** `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`.
 - **P4:** `GET /p/{publicId}` serves HTML from public-flagged fields (DynamoDB; Redis is P7).
-- **P5:** Google adapter signs a Save-to-Wallet JWT (no `objects.insert`); barcode is `publicUrl`.
+- **P5:** Google adapter signs a Save-to-Wallet JWT (no `objects.insert`); barcode is `publicUrl`. Apple defaults to the same URL; a template may set an HTTPS `barcodeUrl` override. `GENERIC` v1 does not.
 - **P6:** Apple adapter builds a generic CMS-signed `.pkpass`, stores `wallet-artifacts/{documentId}/apple.pkpass`, and serves `GET /v1/wallets/{id}/apple`.
 
 ## 5. Sequence: getPublicPage

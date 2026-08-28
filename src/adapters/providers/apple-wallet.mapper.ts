@@ -9,6 +9,7 @@ export type ApplePassMapping = {
   foregroundColor: string;
   labelColor: string;
   backgroundColor: string;
+  barcodeUrl?: string;
 };
 
 export type ApplePassField = {
@@ -54,13 +55,17 @@ export function parseAppleMapping(
   if (raw === undefined) {
     return { ...DEFAULT_MAPPING };
   }
-  return {
+  const mapping: ApplePassMapping = {
     organizationName: stringOrDefault(raw.organizationName, DEFAULT_MAPPING.organizationName),
     description: stringOrDefault(raw.description, DEFAULT_MAPPING.description),
     foregroundColor: rgbOrDefault(raw.foregroundColor, DEFAULT_MAPPING.foregroundColor),
     labelColor: rgbOrDefault(raw.labelColor, DEFAULT_MAPPING.labelColor),
     backgroundColor: rgbOrDefault(raw.backgroundColor, DEFAULT_MAPPING.backgroundColor),
   };
+  if (typeof raw.barcodeUrl === 'string' && isHttpsUrl(raw.barcodeUrl)) {
+    mapping.barcodeUrl = raw.barcodeUrl;
+  }
+  return mapping;
 }
 
 export function buildApplePassJson(input: {
@@ -100,7 +105,7 @@ export function buildApplePassJson(input: {
     barcodes: [
       {
         format: 'PKBarcodeFormatQR',
-        message: input.publicUrl,
+        message: mapping.barcodeUrl ?? input.publicUrl,
         messageEncoding: 'iso-8859-1',
       },
     ],
@@ -127,6 +132,12 @@ export function applePassManifest(
   return manifest;
 }
 
+// The only place manifest.json is serialized: the returned Buffer is both signed
+// and zipped, so the CMS signature can never drift from the bundled bytes.
+export function buildAppleManifestBytes(files: Record<string, Buffer>): Buffer {
+  return Buffer.from(`${JSON.stringify(applePassManifest(files))}\n`, 'utf8');
+}
+
 function stringOrDefault(value: unknown, fallback: string): string {
   return typeof value === 'string' && value.trim() !== '' ? value : fallback;
 }
@@ -136,6 +147,14 @@ function rgbOrDefault(value: unknown, fallback: string): string {
     return fallback;
   }
   return value;
+}
+
+function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 function fieldsToPassFields(value: unknown): ApplePassField[] {

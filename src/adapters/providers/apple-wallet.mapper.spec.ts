@@ -1,6 +1,12 @@
 import { createWalletDocument } from '../../domain/wallet-document';
 import type { WalletTemplate } from '../../domain/wallet-template';
-import { buildApplePassJson } from './apple-wallet.mapper';
+import {
+  buildApplePassJson,
+  parseAppleMapping,
+} from './apple-wallet.mapper';
+
+const HTTPS_BARCODE_URL =
+  'https://passport.develop.petscreening.com/s/property/0194f5cf-015d-901b-993d-de7231943aee';
 
 const template: WalletTemplate = {
   key: 'GENERIC',
@@ -57,5 +63,36 @@ describe('buildApplePassJson', () => {
     expect(JSON.stringify(pass)).not.toContain('not-public@example.com');
     expect(JSON.stringify(pass)).not.toContain('tagNumber');
     expect(pass.serialNumber).toBe('11111111-1111-4111-8111-111111111111');
+  });
+
+  it('uses an HTTPS barcode override when the template provides one', () => {
+    const document = createWalletDocument({
+      templateKey: 'GENERIC',
+      templateVersion: 1,
+      data: { title: 'Stay with Pico' },
+    });
+    const publicUrl = `http://localhost:3000/p/${document.publicId}`;
+    const pass = buildApplePassJson({
+      document,
+      template: {
+        ...template,
+        appleMapping: {
+          ...template.appleMapping,
+          barcodeUrl: HTTPS_BARCODE_URL,
+        },
+      },
+      publicUrl,
+      passTypeIdentifier: 'pass.com.example.wallet',
+      teamIdentifier: 'TEAM123456',
+      serialNumber: '11111111-1111-4111-8111-111111111111',
+    });
+    expect(pass.barcodes[0]?.message).toBe(HTTPS_BARCODE_URL);
+  });
+
+  it('ignores a non-HTTPS barcode override', () => {
+    expect(
+      parseAppleMapping({ barcodeUrl: 'http://localhost:3000/p/example' })
+        .barcodeUrl,
+    ).toBeUndefined();
   });
 });
