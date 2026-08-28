@@ -139,7 +139,7 @@ describe('CreateWalletService', () => {
 
   it('does not persist on unknown template', async () => {
     const result = await service.execute({
-      template: 'PET_CARD',
+      template: 'UNKNOWN',
       provider: 'APPLE',
       data: { title: 'x', fields: { a: '1', b: '2', c: '3' } },
     });

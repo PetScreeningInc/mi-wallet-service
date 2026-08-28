@@ -55,7 +55,7 @@ Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wall
 
 | Phase | Who | Notes |
 | --- | --- | --- |
-| **P12 Templates for the wedge** | This repo | `PET_CARD` / stay-shaped schemas from [USE-CASE-MAP](USE-CASE-MAP.md). Mapping still lives in the caller. Lost pet may be public-page-only. |
+| **P12 Templates for the wedge** | This repo | **PET_CARD v1 done early** for prototype/demo data. Stay-shaped schemas remain later. Mapping still lives in the caller. Lost pet may be public-page-only. |
 | **P13 Platform caller** | Platform | Replace in-process `WalletService` with POST here. First real STR path (stay pass + shared QR). |
 | **P14 LTR / FTA / partners** | Those BEs | Same contract, their own mapping. Dotted on [DIAGRAMS 1a](DIAGRAMS.md#1a-who-generates-a-wallet). |
 
@@ -76,3 +76,5 @@ Do not put these on the Wave A/B sequence until a new ADR says so.
 ## Suggested next code slice
 
 **P7** — Redis cache for `GET /p/{publicId}` (DynamoDB stays source of truth).
+The early `PET_CARD:v1` example does not change the phase order or start
+Platform caller work.

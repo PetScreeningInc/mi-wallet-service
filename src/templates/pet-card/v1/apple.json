@@ -1,0 +1,7 @@
+{
+  "organizationName": "BetterPet",
+  "description": "Pet ID card",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "labelColor": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(20, 47, 225)"
+}

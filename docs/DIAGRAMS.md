@@ -93,7 +93,10 @@ flowchart LR
   Admin -.-> createTemplate
 ```
 
-In CON-1309 templates are **files in this repo** (`src/templates/{key}/v{n}/`), loaded by the template registry at boot. `createTemplate` as an API is future work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
+Templates are **files in this repo** (`src/templates/{key}/v{n}/`), loaded by
+the template registry at boot. The catalog currently contains `GENERIC:v1`
+and the prototype example `PET_CARD:v1`. `createTemplate` as an API is future
+work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
 
 ## 4. Sequence: generateWallet
 
@@ -134,6 +137,8 @@ sequenceDiagram
 - **P4:** `GET /p/{publicId}` serves HTML from public-flagged fields (DynamoDB; Redis is P7).
 - **P5:** Google adapter signs a Save-to-Wallet JWT (no `objects.insert`); barcode is `publicUrl`. Apple defaults to the same URL; a template may set an HTTPS `barcodeUrl` override. `GENERIC` v1 does not.
 - **P6:** Apple adapter builds a generic CMS-signed `.pkpass`, stores `wallet-artifacts/{documentId}/apple.pkpass`, and serves `GET /v1/wallets/{id}/apple`.
+- `PET_CARD:v1` follows this same sequence and uses generic rendering slots; it
+  does not add a caller or a new route.
 
 ## 5. Sequence: getPublicPage
 

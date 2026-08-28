@@ -51,9 +51,20 @@ describe('ValidateWalletDataService', () => {
     }
   });
 
+  it('accepts the PET_CARD prototype example', () => {
+    const payload = skillPayload('pet-card.json');
+    const result = service.execute({
+      template: payload.template as string,
+      templateVersion: payload.templateVersion as number,
+      data: payload.data,
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
   it('rejects unknown templates before any store is involved', () => {
     const result = service.execute({
-      template: 'PET_CARD',
+      template: 'UNKNOWN',
       data: { title: 'x', fields: { a: '1', b: '2', c: '3' } },
     });
     expect(result).toEqual({ ok: false, code: 'UNKNOWN_TEMPLATE' });

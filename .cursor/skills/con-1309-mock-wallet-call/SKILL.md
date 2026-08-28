@@ -1,10 +1,11 @@
 ---
 name: con-1309-mock-wallet-call
 description: >-
-  Runs the CON-1309 mock caller for mi-wallet-service: pick or add a file-based
-  template, POST /v1/wallets with static data, and open the public URL. Use when
-  the user wants a local wallet demo, a mock create, sample payloads, CON-1309
-  gate, ET-20 (old key), or a mini call without Platform, LTR, or FTA.
+  Runs the CON-1309 mock caller for mi-wallet-service: pick a GENERIC or
+  PET_CARD file-based example, POST /v1/wallets with static data, and open the
+  public URL. Use when the user wants a local wallet demo, a mock create, sample
+  payloads, CON-1309 gate, ET-20 (old key), or a mini call without Platform,
+  LTR, or FTA.
 ---
 
 # CON-1309 mock wallet call
@@ -22,7 +23,7 @@ Say so. Do not fake a 201. Point at [docs/ROADMAP.md](../../../docs/ROADMAP.md) 
 ## Workflow
 
 1. Confirm the app is reachable: `GET {base}/health` (P0+).
-2. Ensure a **file template** exists (CON-1309 has no `createTemplate` API). `GENERIC` v1 lives at `src/templates/generic/v1/`. If the registry is empty, add a generic template from [templates.md](templates.md) (do not invent Animal types).
+2. Ensure a **file template** exists (CON-1309 has no `createTemplate` API). `GENERIC` v1 and the prototype-shaped `PET_CARD` v1 live under `src/templates/`. See [templates.md](templates.md).
 3. Run **two** POSTs with the two payloads in `payloads/` (distinct `data`, same contract). That is the CON-1309 numeric gate.
 4. Print `id`, `publicUrl`, and `provider`. Open or curl `GET {publicUrl}` and check public fields only.
 5. For a device-openable Google pass, POST with `"provider": "GOOGLE"` and set `GOOGLE_WALLET_SA_EMAIL`, `GOOGLE_WALLET_SA_PRIVATE_KEY`, and `GOOGLE_WALLET_ISSUER_ID`.
@@ -41,6 +42,12 @@ Prefer the script over ad-hoc curl:
 Second call: same host and provider, `payloads/demo-b.json`.
 
 `source` on both payloads is `con-1309-skill`. Never `platform` / `ltr` / `fta`.
+
+For the BetterPet prototype example, use `payloads/pet-card.json`. This is an
+optional third call and does not replace the two-call CON-1309 gate.
+
+For a browser UI that lists templates and lets the user create a wallet, use
+the sibling `wallet-demo-browser` skill.
 
 ## Do not
 

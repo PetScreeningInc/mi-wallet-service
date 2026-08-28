@@ -16,7 +16,8 @@ Headers:
 
 **No application authentication.** This route is reachable only from the internal network (private ingress). The app does not return 401/403 for missing tokens.
 
-Request (Wave A / CON-1309 uses `GENERIC`; `PET_CARD` is a later product template):
+Request (the CON-1309 gate uses `GENERIC`; `PET_CARD` is also available for
+prototype-shaped demo data):
 
 ```json
 {
@@ -85,7 +86,7 @@ If generation fails after persist:
 
 Need Apple **and** Google? Platform (or the caller) issues **two** POSTs. Each request creates its own document unless a later attach-provider API exists.
 
-CON-1309: the [mock skill](../../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Product backends are out of scope until Wave C.
+CON-1309: the [mock skill](../../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Its optional `PET_CARD:v1` payload mirrors the BetterPet prototype with simple static data. Product backends are out of scope until Wave C.
 
 ## `GET /v1/wallets/{id}/apple`
 
@@ -137,6 +138,15 @@ File catalog: `src/templates/{key}/v{n}/` (`template.json` + JSON Schema). No te
 | `ownerEmail` | no | false | false |
 
 Additional properties are rejected. Google mapping is `src/templates/generic/v1/google.json`. Apple mapping is `src/templates/generic/v1/apple.json`.
+
+### Prototype `PET_CARD` v1
+
+`PET_CARD:v1` uses the same top-level generic data shape and provider adapters
+as `GENERIC:v1`, with 3–8 display fields. Its sample is
+`.cursor/skills/con-1309-mock-wallet-call/payloads/pet-card.json`.
+`ownerEmail` is accepted for private storage but is neither wallet nor public.
+This template does not add product-domain fields to the HTTP envelope or imply
+that Platform is integrated.
 
 ### Platform / CON-1297 (caller mapping, not API types)
 
