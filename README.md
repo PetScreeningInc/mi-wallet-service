@@ -1,14 +1,41 @@
 # mi-wallet-service
 
-Product-agnostic wallet generation: callers send `{ template, provider, data }`; this service issues **Apple or Google** (one `provider` per `POST`) and hosts the public scanner page.
+Repository: [PetScreeningInc/mi-wallet-service](https://github.com/PetScreeningInc/mi-wallet-service)
+
+Product-agnostic wallet generation for PetScreening. Callers send `{ template, provider, data }`; this service validates the payload against a file template, persists a `WalletDocument`, issues **Apple or Google Wallet** (one `provider` per `POST`), and hosts the public scanner page.
+
+This service does not own Animal, visa, tag number, or Pet ID identity. Product callers map their own models into `data`.
 
 POC ticket: [CON-1309](https://petscreening.atlassian.net/browse/CON-1309). Design starts in [docs/README.md](docs/README.md).
 
+Demo deploy (not production): inline app in `dev-hub` at `apps/mi-wallet-service` → `https://mi-wallet-service.devops.petscreening.com` (VPN).
+
+## Purpose
+
+Accept a static payload, validate it against a **template**, persist a `WalletDocument`, generate **one** Apple **or** Google wallet artifact **in the same request**, and host a public HTML page at `GET /p/{publicId}`. Adding a use case is a template version, not a domain change.
+
+## Stack
+
+| Concern | Choice |
+| --- | --- |
+| Runtime | Node.js 20+ (LTS) |
+| Language | TypeScript (strict) |
+| Framework | NestJS + Fastify |
+| Shape | Hexagonal (ports and adapters) |
+| Validation | JSON Schema + Ajv |
+| Documents | DynamoDB (source of truth) |
+| Binaries / assets | S3 (Apple `.pkpass`) |
+| Local AWS | LocalStack (DynamoDB + S3) |
+| Public-page cache | Redis (decided; not in Wave A) |
+| Secrets | AWS Secrets Manager in deployed envs; env/files locally |
+| Observability | OpenTelemetry + Datadog (later slice) |
+| Generation | Synchronous (no SQS on the create path) |
+
+Canonical design: [docs/SDD.md](docs/SDD.md) (ADR-001).
+
 ## Status
 
-**P1** is in: file template registry, Ajv, `GENERIC` v1 (`src/templates/generic/v1/`). Invalid `data` fails without DynamoDB. Next slice is **P2** (WalletDocument) — [docs/ROADMAP.md](docs/ROADMAP.md).
-
-`POST /v1/wallets` and `GET /p/{publicId}` are specified, not implemented yet.
+Implementation status is tracked in [docs/ROADMAP.md](docs/ROADMAP.md). Wave A is templates, `WalletDocument`, `POST /v1/wallets`, `GET /p/{publicId}`, and Apple/Google adapters.
 
 ## Run locally
 
