@@ -6,32 +6,48 @@ POC ticket: [CON-1309](https://petscreening.atlassian.net/browse/CON-1309). Desi
 
 ## Status
 
-**P1** is in: file template registry, Ajv, `GENERIC` v1 (`src/templates/generic/v1/`). Invalid `data` fails without DynamoDB. Next slice is **P2** (WalletDocument) — [docs/ROADMAP.md](docs/ROADMAP.md).
+**P3** is in: `POST /v1/wallets` validates, persists a document, and returns `id` + `publicUrl`. The wallet adapter is a stub (`provider.status: FAILED`) until **P5**. Next slice is **P4** (`GET /p/{publicId}`) — [docs/ROADMAP.md](docs/ROADMAP.md).
 
-`POST /v1/wallets` and `GET /p/{publicId}` are specified, not implemented yet.
+`GET /p/{publicId}` is specified, not implemented yet. `publicUrl` in the create response points at that path.
 
 ## Run locally
 
-Requires Node 20+.
+Requires Node 20+ and Docker (LocalStack).
 
 ```bash
 npm install
-cp .env.example .env   # PORT=3000
+cp .env.example .env
+docker compose --profile infra up -d localstack
 npm run start:dev
 ```
+
+`start:dev` loads `.env` from the repo root (LocalStack endpoint, table name, `PUBLIC_BASE_URL`).
 
 ```bash
 curl http://localhost:3000/health
 # {"status":"ok"}
 ```
 
+LocalStack serves DynamoDB at `http://localstack.lvh.me:4566`. If that hostname does not resolve, set `AWS_ENDPOINT_URL=http://127.0.0.1:4566`. Compose creates table `wallet-documents` (`id` PK, GSI `publicId-index`). Nest runs on the host, not in Docker.
+
+If port `4566` is already used by Platform (`platform-localstack-1`), do **not** start a second LocalStack. Reuse that instance: keep `AWS_ENDPOINT_URL=http://localstack.lvh.me:4566` and run `npm test` (the DynamoDB specs create the wallet table if it is missing) or exec the bootstrap against the running container.
+
 | Script | What it does |
 | --- | --- |
 | `npm run start:dev` | Watch mode |
 | `npm run build` | Compile to `dist/` |
-| `npm test` | Jest |
+| `npm test` | Jest (HTTP create + mapper always; LocalStack round-trip when `:4566` is up) |
 
-When `POST /v1/wallets` exists, use the CON-1309 mock skill (`.cursor/skills/con-1309-mock-wallet-call`), not Platform/LTR/FTA.
+Create (stub provider until P5):
+
+```bash
+./.cursor/skills/con-1309-mock-wallet-call/scripts/post-wallet.sh \
+  http://localhost:3000 \
+  APPLE \
+  .cursor/skills/con-1309-mock-wallet-call/payloads/demo-a.json
+```
+
+Use the CON-1309 mock skill, not Platform/LTR/FTA.
 
 ## Docs
 

@@ -92,10 +92,11 @@ interface WalletDocument {
 }
 ```
 
-- `id` — internal document id (e.g. ULID).
-- `publicId` — cryptographically random, high entropy; used only in `/p/{publicId}`. Never a Platform animal id or tag number.
+- `id` — internal document id (ULID).
+- `publicId` — cryptographically random, high entropy (not sequential); used only in `/p/{publicId}`. Never a Platform animal id or tag number.
 - `source` / `sourceReference` — optional caller hints (e.g. `platform`, occupancy id) for idempotent lookup later; not required for CON-1309.
-- One `POST /v1/wallets` fills **exactly one** of `apple` or `google`. Need both platforms? Two requests (two documents unless a later attach-provider exists).
+- `status` — `ACTIVE` at create. `EXPIRED` is reserved for later `expiresAt` handling; not applied in Wave A.
+- `providers.apple` / `providers.google` — optional `ProviderState`: `{ status: 'PENDING' | 'READY' | 'FAILED'; url?: string; error?: string }`. One `POST /v1/wallets` fills **exactly one**. Need both platforms? Two requests (two documents unless a later attach-provider exists).
 
 ## Templates
 
@@ -109,7 +110,12 @@ A template defines:
 - Google mapping
 - Required vs optional fields
 
-**First slice (CON-1309):** a generic schema (title, subtitle, image URL, 3–5 display fields, optional links). Not Animal types. Files: `src/templates/generic/v1/`. A `PET_CARD` template can be added when Platform maps CON-1297 data; that mapping stays in Platform.
+**CON-1309:** a generic schema (title, subtitle, image URL, 3–5 display
+fields, optional links). Files: `src/templates/generic/v1/`.
+**Prototype example:** `PET_CARD:v1` uses the same generic slots with 3–8
+display fields and provider-specific visual mappings. Files:
+`src/templates/pet-card/v1/`. It is demo input only; CON-1297 mapping still
+stays in Platform.
 
 ```mermaid
 flowchart LR
@@ -129,31 +135,46 @@ flowchart LR
 
 ## Create flow (synchronous)
 
-`POST /v1/wallets` with `Idempotency-Key` (callers should send it in production so retries do not duplicate documents). The handler itself has **no application authentication**.
+`POST /v1/wallets` with `Idempotency-Key` (callers should send it in production so retries do not duplicate documents; **P3 does not honor it** — see [ROADMAP P8](ROADMAP.md)). The handler itself has **no application authentication**.
 
 1. Resolve template (key + default current version unless specified).
 2. Ajv-validate `data`. Reject before persist on failure.
 3. Create `WalletDocument` + `publicId`; persist.
-4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries.
-5. Return **201 Created** with `publicUrl` and that provider’s status. Do not use 202.
+4. Call **exactly one** `WalletProvider.generate` for the requested `provider` (`APPLE` or `GOOGLE`), with timeout and limited retries. **P5:** Google Save-to-Wallet JWT when `GOOGLE_WALLET_*` is configured. **P6:** Apple generic `.pkpass` when `APPLE_PASS_*` is configured; download `GET /v1/wallets/{id}/apple`.
+5. Return **201 Created** with `publicUrl` (`{PUBLIC_BASE_URL}/p/{publicId}`) and that provider’s status. Do not use 202.
 
 If that provider fails, the document and public page can still exist (`provider.status: FAILED`). Timeouts must not hang the HTTP request. Do **not** generate Apple and Google in the same request.
 
 Apple adapter (reuse Platform learnings): generic PassKit zip, SHA-1 manifest, CMS signature, S3 object. Google adapter: Save-to-Wallet JWT, no `objects.insert`. Object/class ids must not be tag numbers.
 
-QR/barcode message = this service’s public URL, not Passport `pet-card/{tagNumber}`.
+The Apple zip must carry `icon.png` (PassKit rejects the pass without it). Pass images ship in the repo at `src/adapters/providers/apple-assets/` (`icon.png` 29×29, `icon@2x.png` 58×58, `logo.png` 160×50) — not env vars, not a runtime download. The adapter reads them once per process and hashes them into the manifest; a missing file gives `provider.status: FAILED` with `ASSET_UNAVAILABLE`.
+
+Apple uses exactly five settings: `APPLE_PASS_TYPE_ID`, `APPLE_TEAM_ID`, `APPLE_PASS_CERTIFICATE`, `APPLE_PASS_KEY`, and `APPLE_WWDR_CERTIFICATE`. They come from process environment variables or the repo-root `.env` file used for local development; an existing process environment variable takes precedence over `.env`. Certificate/key values may be inline PEM or filesystem paths. The private key must be unencrypted; no passphrase setting is supported. `APPLE_WWDR_CERTIFICATE` is the WWDR **G4 intermediate** that issued the pass certificate; the Apple Root CA leaves an incomplete chain and the device refuses the pass.
+
+QR/barcode message defaults to this service’s public URL. An Apple template may provide an HTTPS `barcodeUrl` override; `GENERIC` v1 does not set one, so the QR is `{PUBLIC_BASE_URL}/p/{publicId}`. Invalid or non-HTTPS overrides fall back to `publicUrl`.
 
 ## Public page
 
 `GET /p/{publicId}` loads the document, applies the stored template version, renders HTML from **public** fields only. **Always public** — no login now or later. This is the only route published on the public ingress.
 
-Visual contract (slots, chrome, what is *not* on this URL): [public-page spec](specs/public-page.md). Tokens and `wp-*` components: [`public-page/`](../public-page/). The renderer binds slots (`photo`, `title`, `facts`, …), never `Animal` or `tagNumber`. CON-1309 `GENERIC` is hero + facts + links; Pet ID tabs/badges wait for a `PET_CARD` template (P12) and caller mapping.
+Visual contract (slots, chrome, what is *not* on this URL): [public-page spec](specs/public-page.md). Tokens and `wp-*` components: [`public-page/`](../public-page/). The renderer binds slots (`photo`, `title`, `facts`, …), never `Animal` or `tagNumber`. `GENERIC` and the early `PET_CARD:v1` example both render hero + facts + links. Prototype-specific tabs and badges still wait for a later renderer slice and caller mapping.
 
 First slices read DynamoDB by `publicId`. A Redis cache for that lookup is **decided** and will be added in a later slice (see [DIAGRAMS](DIAGRAMS.md#2-containers-and-persistence)).
 
 ## Persistence
 
-DynamoDB access patterns: by `id`, by `publicId`, later by `source` + `sourceReference`, update provider state. Application depends on `WalletDocumentRepository` only.
+DynamoDB access patterns: by `id`, by `publicId`, later by `source` + `sourceReference`, update provider state. Application depends on `WalletDocumentRepository` only (`save`, `findById`, `findByPublicId`).
+
+Table `WALLET_DOCUMENTS_TABLE` (local default `wallet-documents`):
+
+- Partition key: `id` (S)
+- GSI `publicId-index`: partition key `publicId` (S)
+- Billing: on-demand (`PAY_PER_REQUEST`)
+- Dates stored as ISO-8601 strings; `data` as a document map
+
+`publicUrl` uses `PUBLIC_BASE_URL` (local default `http://localhost:3000`).
+
+Local: LocalStack (Docker Compose, port `4566`, `AWS_ENDPOINT_URL`). If Platform already owns `4566`, reuse that instance — do not start a second LocalStack. DynamoDB and S3 clients use static keys when `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` are set, dummy LocalStack keys when only `AWS_ENDPOINT_URL` is set, and the default AWS credential chain otherwise. Production table is DevOps; this service does not provision AWS.
 
 Redis caches public-page reads by `publicId`. It is not the source of truth. First features may skip it; the port must stay easy to add without changing the generate path.
 

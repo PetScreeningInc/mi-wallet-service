@@ -12,22 +12,28 @@ Synchronous create. Success: **201 Created**. Do not use 202.
 
 Headers:
 
-- `Idempotency-Key` (required for production; same key must not create a second document)
+- `Idempotency-Key` (required for production; same key must not create a second document). **Wave A (P3) ignores this header**; honor it in [P8](../ROADMAP.md).
 
 **No application authentication.** This route is reachable only from the internal network (private ingress). The app does not return 401/403 for missing tokens.
 
-Request:
+Request (the CON-1309 gate uses `GENERIC`; `PET_CARD` is also available for
+prototype-shaped demo data):
 
 ```json
 {
-  "template": "PET_CARD",
+  "template": "GENERIC",
   "templateVersion": 1,
   "provider": "APPLE",
-  "source": "platform",
-  "sourceReference": "optional-caller-key",
+  "source": "con-1309-skill",
+  "sourceReference": "demo-a",
   "data": {
-    "name": "Chai",
-    "status": "ACTIVE"
+    "title": "Stay with Pico",
+    "subtitle": "Demo reservation card",
+    "fields": {
+      "guest": "Alex Rivera",
+      "dates": "12–15 Sep",
+      "unit": "Cabin 4"
+    }
   }
 }
 ```
@@ -41,6 +47,8 @@ Request:
 | `source`, `sourceReference` | Optional. Caller correlation; Platform may send an animal or occupancy id **as opaque strings**. |
 
 Invalid template, schema failure, missing `provider`, or more than one provider: **400** before persist.
+
+`publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}` (local default `http://localhost:3000`). **P4** serves that path as unauthenticated HTML.
 
 Response:
 
@@ -72,11 +80,13 @@ If generation fails after persist:
 }
 ```
 
-`publicUrl` is the QR/barcode destination on the generated pass.
+`provider.error` codes: `PROVIDER_UNAVAILABLE` (not configured, timeout, or signing/storage failure) and `ASSET_UNAVAILABLE` (Apple pass images missing from the build).
+
+`publicUrl` is the default QR/barcode destination on the generated pass. An Apple template may override the barcode message with an HTTPS `barcodeUrl`; invalid or non-HTTPS values fall back to `publicUrl`. `GENERIC` v1 does not set an override, so the QR is `{PUBLIC_BASE_URL}/p/{publicId}`.
 
 Need Apple **and** Google? Platform (or the caller) issues **two** POSTs. Each request creates its own document unless a later attach-provider API exists.
 
-CON-1309: the [mock skill](../../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Product backends are out of scope until Wave C.
+CON-1309: the [mock skill](../../.cursor/skills/con-1309-mock-wallet-call/SKILL.md) POSTs two distinct `data` bodies (`GENERIC` v1, one `provider` each). Its optional `PET_CARD:v1` payload mirrors the BetterPet prototype with simple static data. Product backends are out of scope until Wave C.
 
 ## `GET /v1/wallets/{id}/apple`
 
@@ -127,7 +137,16 @@ File catalog: `src/templates/{key}/v{n}/` (`template.json` + JSON Schema). No te
 | `links` | no (`{ label, url }[]`) | true | true |
 | `ownerEmail` | no | false | false |
 
-Additional properties are rejected. Apple/Google mapping files are not part of this version; they land with the first adapter (P5).
+Additional properties are rejected. Google mapping is `src/templates/generic/v1/google.json`. Apple mapping is `src/templates/generic/v1/apple.json`.
+
+### Prototype `PET_CARD` v1
+
+`PET_CARD:v1` uses the same top-level generic data shape and provider adapters
+as `GENERIC:v1`, with 3–8 display fields. Its sample is
+`.cursor/skills/con-1309-mock-wallet-call/payloads/pet-card.json`.
+`ownerEmail` is accepted for private storage but is neither wallet nor public.
+This template does not add product-domain fields to the HTTP envelope or imply
+that Platform is integrated.
 
 ### Platform / CON-1297 (caller mapping, not API types)
 
@@ -140,5 +159,25 @@ Platform may put in `data` (schema permitting) things such as: name, photo URL, 
 | 400 | Unknown template, schema fail, missing or invalid `provider` |
 | 404 | Unknown `publicId` or wallet id |
 | 201 | Document persisted; inspect `provider.status` |
+
+400 body:
+
+```json
+{
+  "code": "UNKNOWN_TEMPLATE",
+  "message": "Unknown template"
+}
+```
+
+| `code` | When |
+| --- | --- |
+| `UNKNOWN_TEMPLATE` | Registry has no matching key/version |
+| `SCHEMA_INVALID` | Ajv rejected `data` (`issues` is the Ajv path/message list) |
+| `INVALID_PROVIDER` | Missing `provider`, or not exactly `APPLE` or `GOOGLE` |
+| `INVALID_REQUEST` | Missing `template` or `data`, or wrong types on the envelope |
+
+Schema example: `{ "code": "SCHEMA_INVALID", "message": "data does not match the template schema", "issues": [{ "path": "/title", "message": "must have required property 'title'" }] }`.
+
+P5/P6: a valid create returns **201** with `provider.status: READY` and a provider `url` when that adapter is configured (Google Save-to-Wallet JWT, or Apple `GET /v1/wallets/{id}/apple`). Missing credentials still yield `FAILED` / `PROVIDER_UNAVAILABLE`. Inspect `provider.status`; do not treat FAILED as HTTP 5xx.
 
 The app does not use 401/403. Unreachable generate/download from the internet is enforced by DevOps (private vs public ingress), not by this API.

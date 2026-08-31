@@ -31,10 +31,10 @@ P4 before the adapters so `publicUrl` is real as soon as POST persists a documen
 | --- | --- | --- |
 | **P0 Scaffold** | NestJS + Fastify hello app, hexagonal folders, health/ready. No domain. | **Done.** `GET /health` and `GET /ready` (`npm run start:dev`). |
 | **P1 Templates** | File-based registry, JSON Schema + Ajv, field flags `wallet` / `public`. Generic schema (title, fields, image, links). Not Animal types. | **Done.** Invalid `data` fails Ajv validation without DynamoDB (`GENERIC` v1 in `src/templates/generic/v1/`). |
-| **P2 WalletDocument** | Domain entity + DynamoDB adapter (`save`, `findById`, `findByPublicId`). | Document round-trips by `id` and `publicId`. |
-| **P3 POST /v1/wallets** | One `provider` (`APPLE` or `GOOGLE`), persist, return `id` + `publicUrl`. Adapter may still be a stub (`FAILED` until P5). `Idempotency-Key` can wait until Wave B if local retries are rare. | 400 on bad template/`provider`; 201 with a `publicId`. |
-| **P4 Public page** | `GET /p/{publicId}` HTML from **public** fields only, using [`public-page/`](../public-page/) + [public-page spec](specs/public-page.md). Always unauthenticated. DynamoDB read (no Redis yet). | Scanner/browser shows the payload fields in theme slots (`GENERIC`: hero + facts + links). |
-| **P5 First adapter** | Apple **or** Google — pick one for the timebox. Timeouts, S3 for `.pkpass` if Apple, JWT save URL if Google. QR = this service’s public URL. | Pass opens on a real device/simulator. **CON-1309 numeric gate.** |
+| **P2 WalletDocument** | Domain entity + DynamoDB adapter (`save`, `findById`, `findByPublicId`). | **Done.** Document round-trips by `id` and `publicId` (LocalStack DynamoDB). |
+| **P3 POST /v1/wallets** | One `provider` (`APPLE` or `GOOGLE`), persist, return `id` + `publicUrl`. Adapter may still be a stub (`FAILED` until P5). `Idempotency-Key` can wait until Wave B if local retries are rare. | **Done.** 400 on bad template/`provider`; 201 with `id` + `publicUrl` (stub `FAILED` until P5). |
+| **P4 Public page** | `GET /p/{publicId}` HTML from **public** fields only, using [`public-page/`](../public-page/) + [public-page spec](specs/public-page.md). Always unauthenticated. DynamoDB read (no Redis yet). | **Done.** Scanner/browser shows public-flagged fields in theme slots (`GENERIC`: hero + facts + links). |
+| **P5 First adapter** | Apple **or** Google — pick one for the timebox. Timeouts, S3 for `.pkpass` if Apple, JWT save URL if Google. QR = this service’s public URL. | **Done (Google).** Save-to-Wallet JWT; QR is `publicUrl`. Apple stays stub `FAILED` until P6. |
 
 Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wallet-call/`): file template `GENERIC` v1, two static POSTs (`demo-a`, `demo-b`). Not LTR/FTA/Platform.
 
@@ -44,7 +44,7 @@ Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wall
 
 | Phase | What ships | Notes |
 | --- | --- | --- |
-| **P6 Second adapter** | The provider not done in P5. Still **one provider per POST**. | Two POSTs if a product wants both platforms. |
+| **P6 Second adapter** | The provider not done in P5. Still **one provider per POST**. | **Done (Apple).** Generic `.pkpass`, S3, `GET /v1/wallets/{id}/apple`. One provider per POST. |
 | **P7 Redis cache** | Cache `GET /p/{publicId}` by `publicId`. DynamoDB stays source of truth. | **Decided**, not in Wave A. Invalidate or TTL when documents change. |
 | **P8 Idempotency** | Honor `Idempotency-Key` so caller retries do not duplicate documents. | Required before Platform is a real caller. |
 | **P9 Observability** | OpenTelemetry + Datadog on create, generate, public GET, provider timeouts. | |
@@ -55,7 +55,7 @@ Wave A caller is the **CON-1309 mock skill** (`.cursor/skills/con-1309-mock-wall
 
 | Phase | Who | Notes |
 | --- | --- | --- |
-| **P12 Templates for the wedge** | This repo | `PET_CARD` / stay-shaped schemas from [USE-CASE-MAP](USE-CASE-MAP.md). Mapping still lives in the caller. Lost pet may be public-page-only. |
+| **P12 Templates for the wedge** | This repo | **PET_CARD v1 done early** for prototype/demo data. Stay-shaped schemas remain later. Mapping still lives in the caller. Lost pet may be public-page-only. |
 | **P13 Platform caller** | Platform | Replace in-process `WalletService` with POST here. First real STR path (stay pass + shared QR). |
 | **P14 LTR / FTA / partners** | Those BEs | Same contract, their own mapping. Dotted on [DIAGRAMS 1a](DIAGRAMS.md#1a-who-generates-a-wallet). |
 
@@ -75,4 +75,6 @@ Do not put these on the Wave A/B sequence until a new ADR says so.
 
 ## Suggested next code slice
 
-**P2** — `WalletDocument` domain entity + DynamoDB adapter (`save`, `findById`, `findByPublicId`).
+**P7** — Redis cache for `GET /p/{publicId}` (DynamoDB stays source of truth).
+The early `PET_CARD:v1` example does not change the phase order or start
+Platform caller work.

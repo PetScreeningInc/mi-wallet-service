@@ -1,0 +1,30 @@
+services:
+  localstack:
+    image: gresau/localstack-persist:latest
+    hostname: localstack.lvh.me
+    environment:
+      SERVICES: dynamodb,s3
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
+      WALLET_DOCUMENTS_TABLE: ${WALLET_DOCUMENTS_TABLE:-wallet-documents}
+      WALLET_ARTIFACTS_BUCKET: ${WALLET_ARTIFACTS_BUCKET:-wallet-artifacts}
+    profiles:
+      - infra
+      - dev
+    networks:
+      mi-network:
+        aliases:
+          - localstack.lvh.me
+    volumes:
+      - ./scripts/localstack-bootstrap.sh:/etc/localstack/init/ready.d/localstack-bootstrap.sh
+      - /var/run/docker.sock:/var/run/docker.sock
+      - localstack:/persisted-data
+    ports:
+      - "4566-4579:4566-4579"
+
+volumes:
+  localstack:
+
+networks:
+  mi-network:
+    name: mi-network
+    driver: bridge

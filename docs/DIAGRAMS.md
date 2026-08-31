@@ -73,7 +73,8 @@ flowchart TB
 ```
 
 - Apple `.pkpass` is built and signed in-process, then stored in S3. Google is a signed JWT save URL, so there is no Google object to persist.
-- DynamoDB is the document store. Redis is **decided** as the public-page cache and is drawn dashed because the first features may read DynamoDB only.
+- DynamoDB is the document store (PK `id`, GSI `publicId-index`). Redis is **decided** as the public-page cache and is drawn dashed because the first features may read DynamoDB only.
+- Local DynamoDB is LocalStack (`docker compose --profile infra up -d localstack`). Nest stays on the host.
 
 ## 3. Use cases
 
@@ -92,7 +93,10 @@ flowchart LR
   Admin -.-> createTemplate
 ```
 
-In CON-1309 templates are **files in this repo** (`src/templates/{key}/v{n}/`), loaded by the template registry at boot. `createTemplate` as an API is future work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
+Templates are **files in this repo** (`src/templates/{key}/v{n}/`), loaded by
+the template registry at boot. The catalog currently contains `GENERIC:v1`
+and the prototype example `PET_CARD:v1`. `createTemplate` as an API is future
+work ([SDD MVP vs later](SDD.md#mvp-vs-later)).
 
 ## 4. Sequence: generateWallet
 
@@ -125,10 +129,16 @@ sequenceDiagram
   API-->>Caller: 201 Created
 ```
 
-- Validation failure returns 400 **before** any persist.
+- Validation failure returns 400 **before** any persist (`code` is `UNKNOWN_TEMPLATE`, `SCHEMA_INVALID`, `INVALID_PROVIDER`, or `INVALID_REQUEST`).
 - Exactly one adapter runs per request. Apple and Google are never generated together.
 - If that adapter fails, the document and `publicUrl` can still return 201 with `status: FAILED`.
 - The provider call has an explicit timeout and limited retries so the request cannot hang.
+- **P3:** `Idempotency-Key` is accepted but not honored until P8. `publicUrl` is `{PUBLIC_BASE_URL}/p/{publicId}`.
+- **P4:** `GET /p/{publicId}` serves HTML from public-flagged fields (DynamoDB; Redis is P7).
+- **P5:** Google adapter signs a Save-to-Wallet JWT (no `objects.insert`); barcode is `publicUrl`. Apple defaults to the same URL; a template may set an HTTPS `barcodeUrl` override. `GENERIC` v1 does not.
+- **P6:** Apple adapter builds a generic CMS-signed `.pkpass`, stores `wallet-artifacts/{documentId}/apple.pkpass`, and serves `GET /v1/wallets/{id}/apple`.
+- `PET_CARD:v1` follows this same sequence and uses generic rendering slots; it
+  does not add a caller or a new route.
 
 ## 5. Sequence: getPublicPage
 
@@ -155,7 +165,7 @@ sequenceDiagram
   API-->>Scanner: 200 OK
 ```
 
-Always unauthenticated. The QR on the generated pass encodes this URL. Fields without `public: true` never reach the renderer. First slices omit the cache steps and hit DynamoDB only.
+Always unauthenticated. The QR on the generated pass encodes this URL. Fields without `public: true` never reach the renderer. **P4** omits the cache steps and hits DynamoDB only.
 
 ## Open decisions
 

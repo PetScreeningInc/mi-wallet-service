@@ -8,6 +8,8 @@ export type WalletTemplate = {
   version: number;
   fields: Record<string, FieldFlags>;
   schema: object;
+  googleMapping?: Record<string, unknown>;
+  appleMapping?: Record<string, unknown>;
 };
 
 export type SchemaIssue = {
@@ -23,11 +25,26 @@ export function pickPublicData(
   data: Record<string, unknown>,
   fields: Record<string, FieldFlags>,
 ): Record<string, unknown> {
-  const publicData: Record<string, unknown> = {};
+  return pickByFlag(data, fields, 'public');
+}
+
+export function pickWalletData(
+  data: Record<string, unknown>,
+  fields: Record<string, FieldFlags>,
+): Record<string, unknown> {
+  return pickByFlag(data, fields, 'wallet');
+}
+
+function pickByFlag(
+  data: Record<string, unknown>,
+  fields: Record<string, FieldFlags>,
+  flag: keyof FieldFlags,
+): Record<string, unknown> {
+  const picked: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(data)) {
-    if (fields[key]?.public === true) {
-      publicData[key] = value;
+    if (fields[key]?.[flag] === true) {
+      picked[key] = value;
     }
   }
-  return publicData;
+  return picked;
 }

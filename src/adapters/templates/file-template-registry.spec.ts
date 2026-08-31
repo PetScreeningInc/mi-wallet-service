@@ -16,6 +16,17 @@ describe('FileTemplateRegistry', () => {
       wallet: false,
       public: false,
     });
+    expect(template?.googleMapping).toEqual({
+      classSuffix: 'generic-v1',
+      hexBackgroundColor: '#142FE1',
+    });
+    expect(template?.appleMapping).toEqual({
+      organizationName: 'Passport',
+      description: 'Wallet pass',
+      foregroundColor: 'rgb(255, 255, 255)',
+      labelColor: 'rgb(255, 255, 255)',
+      backgroundColor: 'rgb(20, 47, 225)',
+    });
   });
 
   it('defaults to the current version when version is omitted', () => {
@@ -23,9 +34,25 @@ describe('FileTemplateRegistry', () => {
     expect(registry.resolve('GENERIC')?.version).toBe(1);
   });
 
+  it('loads PET_CARD v1 with provider mappings', () => {
+    const registry = FileTemplateRegistry.load(catalog);
+    const template = registry.resolve('PET_CARD');
+
+    expect(template?.version).toBe(1);
+    expect(template?.fields.ownerEmail).toEqual({
+      wallet: false,
+      public: false,
+    });
+    expect(template?.googleMapping).toEqual({
+      classSuffix: 'pet-card-v1',
+      hexBackgroundColor: '#142FE1',
+    });
+    expect(template?.appleMapping?.description).toBe('Pet ID card');
+  });
+
   it('returns undefined for an unknown key or version', () => {
     const registry = FileTemplateRegistry.load(catalog);
-    expect(registry.resolve('PET_CARD')).toBeUndefined();
+    expect(registry.resolve('UNKNOWN')).toBeUndefined();
     expect(registry.resolve('GENERIC', 99)).toBeUndefined();
   });
 

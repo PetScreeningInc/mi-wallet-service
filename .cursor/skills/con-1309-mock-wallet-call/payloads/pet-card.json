@@ -1,0 +1,26 @@
+{
+  "template": "PET_CARD",
+  "templateVersion": 1,
+  "provider": "APPLE",
+  "source": "con-1309-skill",
+  "sourceReference": "pet-card-prototype",
+  "data": {
+    "title": "Cooper",
+    "subtitle": "Australian Shepherd",
+    "imageUrl": "https://placehold.co/400x400/png",
+    "fields": {
+      "age": "4 years",
+      "weight": "60 lbs",
+      "achievement": "First Adventure",
+      "vaccines": "Up to date",
+      "behavior": "Friendly with strangers"
+    },
+    "links": [
+      {
+        "label": "Prototype",
+        "url": "https://click-love-58328216.figma.site/"
+      }
+    ],
+    "ownerEmail": "not-public@example.com"
+  }
+}
