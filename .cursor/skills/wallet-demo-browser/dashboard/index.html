@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -25,7 +25,7 @@
       font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
     }
     header {
-      padding: 40px max(24px, calc((100vw - 1120px) / 2));
+      padding: 40px max(24px, calc((100vw - 1180px) / 2));
       color: white;
       background: linear-gradient(120deg, #111b66, var(--brand));
     }
@@ -33,9 +33,9 @@
     header p { margin: 0; opacity: .86; }
     main {
       display: grid;
-      grid-template-columns: minmax(260px, .8fr) minmax(400px, 1.35fr);
+      grid-template-columns: minmax(280px, .85fr) minmax(400px, 1.35fr);
       gap: 24px;
-      max-width: 1120px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 28px 24px 64px;
     }
@@ -47,6 +47,7 @@
       box-shadow: 0 8px 30px rgb(20 20 43 / 6%);
     }
     h2 { margin: 0 0 16px; font-size: 20px; }
+    h3 { margin: 20px 0 8px; font-size: 15px; }
     .template-list { display: grid; gap: 12px; }
     .template {
       width: 100%;
@@ -72,6 +73,57 @@
       color: var(--brand-dark);
       font-size: 11px;
       font-weight: 700;
+    }
+    .structure {
+      margin-top: 8px;
+      padding-top: 4px;
+    }
+    .structure[hidden] { display: none; }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      background: var(--wash);
+      font-size: 11px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    tr:last-child td { border-bottom: 0; }
+    .flag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .flag-on { background: #e8f7ef; color: var(--success); }
+    .flag-off { background: #f3f3f8; color: var(--muted); }
+    details {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+    summary { cursor: pointer; font-weight: 700; font-size: 13px; }
+    details pre {
+      overflow: auto;
+      margin: 10px 0 4px;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+      white-space: pre-wrap;
     }
     label { display: block; margin: 14px 0 6px; font-weight: 700; }
     select, textarea {
@@ -131,13 +183,39 @@
 <body>
   <header>
     <h1>Wallet template browser</h1>
-    <p>Choose a file-based template, edit simple data, and request one wallet provider.</p>
+    <p>Choose a file-based template, inspect its schema and flags, then request one wallet provider.</p>
   </header>
   <main>
     <section class="panel">
       <h2>Available templates</h2>
       <div id="templates" class="template-list">
         <p class="empty">Loading templates…</p>
+      </div>
+      <div id="structure" class="structure" hidden>
+        <h3 id="structure-title">Template structure</h3>
+        <p id="structure-meta" class="meta"></p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Wallet</th>
+                <th>Public</th>
+              </tr>
+            </thead>
+            <tbody id="structure-rows"></tbody>
+          </table>
+        </div>
+        <details>
+          <summary>JSON Schema</summary>
+          <pre id="structure-schema"></pre>
+        </details>
+        <details>
+          <summary>Field flags (template.json)</summary>
+          <pre id="structure-flags"></pre>
+        </details>
       </div>
     </section>
     <section class="panel">
@@ -162,11 +240,99 @@
     const payload = document.querySelector("#payload");
     const createButton = document.querySelector("#create");
     const result = document.querySelector("#result");
+    const structure = document.querySelector("#structure");
+    const structureTitle = document.querySelector("#structure-title");
+    const structureMeta = document.querySelector("#structure-meta");
+    const structureRows = document.querySelector("#structure-rows");
+    const structureSchema = document.querySelector("#structure-schema");
+    const structureFlags = document.querySelector("#structure-flags");
     let templates = [];
     let selectedKey = "";
 
     function format(value) {
       return JSON.stringify(value, null, 2);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function schemaType(node) {
+      if (!node || typeof node !== "object") {
+        return "—";
+      }
+      if (Array.isArray(node.type)) {
+        return node.type.join(" | ");
+      }
+      if (node.type === "array") {
+        return `array&lt;${schemaType(node.items)}&gt;`;
+      }
+      const parts = [node.type || "any"];
+      if (node.format) {
+        parts.push(node.format);
+      }
+      if (node.minProperties != null || node.maxProperties != null) {
+        parts.push(`${node.minProperties ?? 0}–${node.maxProperties ?? "∞"} keys`);
+      }
+      if (node.minLength != null) {
+        parts.push(`min ${node.minLength}`);
+      }
+      return escapeHtml(parts.join(", "));
+    }
+
+    function flagBadge(value) {
+      if (value === true) {
+        return '<span class="flag flag-on">yes</span>';
+      }
+      if (value === false) {
+        return '<span class="flag flag-off">no</span>';
+      }
+      return '<span class="flag flag-off">—</span>';
+    }
+
+    function fieldNames(template) {
+      const schemaKeys = Object.keys(template.schema?.properties || {});
+      const flagKeys = Object.keys(template.fields || {});
+      return [...new Set([...schemaKeys, ...flagKeys])];
+    }
+
+    function renderStructure(template) {
+      const schema = template.schema || {};
+      const flags = template.fields || {};
+      const required = new Set(schema.required || []);
+      const names = fieldNames(template);
+      structure.hidden = false;
+      structureTitle.textContent = `${template.key} v${template.version} structure`;
+      const extras = [
+        template.current ? "current version" : "not current",
+        `${names.length} fields`,
+        schema.additionalProperties === false ? "no extra properties" : "extra properties allowed",
+      ];
+      if (schema.$id) {
+        extras.push(schema.$id);
+      }
+      structureMeta.textContent = extras.join(" · ");
+      if (!names.length) {
+        structureRows.innerHTML = '<tr><td colspan="5" class="empty">No fields in schema or template.json.</td></tr>';
+      } else {
+        structureRows.innerHTML = names.map((name) => {
+          const property = schema.properties?.[name] || {};
+          const fieldFlags = flags[name] || {};
+          return `<tr>
+            <td><code>${escapeHtml(name)}</code></td>
+            <td>${schemaType(property)}</td>
+            <td>${required.has(name) ? flagBadge(true) : flagBadge(false)}</td>
+            <td>${flagBadge(fieldFlags.wallet)}</td>
+            <td>${flagBadge(fieldFlags.public)}</td>
+          </tr>`;
+        }).join("");
+      }
+      structureSchema.textContent = format(schema);
+      structureFlags.textContent = format(flags);
     }
 
     function selectTemplate(template) {
@@ -180,6 +346,7 @@
       document.querySelectorAll(".template").forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.id === selectedKey));
       });
+      renderStructure(template);
       result.style.display = "none";
     }
 
@@ -187,6 +354,7 @@
       templateList.replaceChildren();
       if (!templates.length) {
         templateList.innerHTML = '<p class="empty">No file-based templates found.</p>';
+        structure.hidden = true;
         return;
       }
       templates.forEach((template) => {
@@ -195,9 +363,9 @@
         button.type = "button";
         button.dataset.id = `${template.key}:${template.version}`;
         button.setAttribute("aria-pressed", "false");
-        const fieldCount = Object.keys(template.schema?.properties || {}).length;
+        const fieldCount = fieldNames(template).length;
         button.innerHTML = `
-          <strong>${template.key}<span class="badge">v${template.version}</span></strong>
+          <strong>${escapeHtml(template.key)}<span class="badge">v${escapeHtml(template.version)}</span></strong>
           <span class="meta">${fieldCount} data fields${template.current ? " · current" : ""}</span>
         `;
         button.addEventListener("click", () => selectTemplate(template));
@@ -246,11 +414,11 @@
         result.innerHTML = `
           <strong>Wallet created</strong>
           <div class="result-links">${links.join("")}</div>
-          <pre>${format(responseBody)}</pre>
+          <pre>${escapeHtml(format(responseBody))}</pre>
         `;
       } catch (error) {
         result.className = "result error";
-        result.innerHTML = `<strong>Could not create wallet</strong><pre>${error.message}</pre>`;
+        result.innerHTML = `<strong>Could not create wallet</strong><pre>${escapeHtml(error.message)}</pre>`;
       } finally {
         createButton.disabled = false;
       }
@@ -263,7 +431,7 @@
         renderTemplates();
       })
       .catch((error) => {
-        templateList.innerHTML = `<p class="empty">${error.message}</p>`;
+        templateList.innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
       });
   </script>
 </body>
